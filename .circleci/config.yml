@@ -18,7 +18,7 @@ jobs:
       - run: git config user.email $GITHUB_EMAIL
       - run: npm run build
       - run: npm run export
-      - run: mv ./copyfiles/* ./out/
+      - run: touch out/.nojekyll
       - run: npm run deploy:gh-pages
 workflows:
   version: 2

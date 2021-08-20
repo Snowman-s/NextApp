@@ -1,4 +1,6 @@
+const production = process.env.NODE_ENV.match('production') || false
+
 module.exports = {
   reactStrictMode: true,
-  basePath: '/NextApp'
+  basePath: production? '/NextApp': ''
 }

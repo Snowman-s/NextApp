@@ -1,5 +1,5 @@
-import P5Canvas from "components/P5Canvas"
-import mysketch from "components/sketches/myfirstsketch"
+import P5Canvas from "src/components/P5Canvas"
+import mysketch from "src/components/sketches/myfirstsketch"
 import styles from '/styles/Home.module.css'
 
 export default function Home() {

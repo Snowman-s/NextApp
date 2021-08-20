@@ -1,5 +1,5 @@
-import P5Canvas from "components/P5Canvas"
-import lifegame from "components/sketches/lifegame"
+import P5Canvas from "src/components/P5Canvas"
+import lifegame from "src/components/sketches/lifegame"
 
 export default function Home() {
   return (

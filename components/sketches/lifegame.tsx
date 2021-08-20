@@ -1,6 +1,7 @@
+import CustomP5 from 'others/CustomP5'
 import p5 from 'p5'
 
-export default function lifegame(p: p5) {
+export default function lifegame(p: CustomP5) {
     const GRID_WIDTH = 50
 
     let gridHorizontalNum:number
@@ -8,6 +9,8 @@ export default function lifegame(p: p5) {
 
     let data:number[][]
     let datacopy:number[][]
+
+    let fillColor:number = 255
 
     p.setup = () => {
         p.createCanvas(screen.width, screen.height)
@@ -29,7 +32,7 @@ export default function lifegame(p: p5) {
 
     p.draw = () => {
         p.background(0)
-        p.fill(255)
+        p.fill(fillColor)
         p.noStroke()
 
         if(p.frameCount % 40 == 0) updateGrid()
@@ -39,6 +42,14 @@ export default function lifegame(p: p5) {
                 if(data[w][h] == 1)
                     p.square(w * GRID_WIDTH, h * GRID_WIDTH, GRID_WIDTH)
             }
+        }
+    }
+
+    p.onPropsUpdate = (props:any)=>{
+        if(props.fillColor){
+            fillColor = props.fillColor
+        } else {
+            fillColor = 255
         }
     }
 

@@ -4,7 +4,7 @@ import lifegame from "components/sketches/lifegame"
 export default function Home() {
   return (
     <>
-      <P5Canvas sketch={lifegame} />
+      <P5Canvas sketch={lifegame} fillColor={199} />
     </>
   )
 }

@@ -1,5 +1,4 @@
-import CustomP5 from 'others/CustomP5'
-import p5 from 'p5'
+import {CustomP5} from 'others/CustomP5'
 
 export default function lifegame(p: CustomP5) {
     const GRID_WIDTH = 50

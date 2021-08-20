@@ -1,4 +1,4 @@
-import CustomP5, { CustomP5Props } from 'others/CustomP5'
+import {CustomP5, CustomP5Props } from 'others/CustomP5'
 import React from 'react'
 
 export default class P5Canvas extends React.Component<CustomP5Props, {p5obj:CustomP5}>{  

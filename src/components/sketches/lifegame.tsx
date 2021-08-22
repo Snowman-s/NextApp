@@ -9,10 +9,43 @@ export default function lifegame(p: CustomP5) {
     let data:number[][]
     let datacopy:number[][]
 
-    let fillColor:number = 255
+    let saturation:number = 255
+    let bornCondition:number[] = [3]
+    let deadCondition:number[] = [1, 2, 5, 6, 7, 8]
 
     p.setup = () => {
-        p.createCanvas(screen.width, screen.height)
+        p.createCanvas(p.windowWidth, p.windowHeight)
+        initialize()
+    }
+
+    p.draw = () => {
+        p.background(0)
+        p.noStroke()
+
+        if(p.frameCount % 40 == 0) updateGrid()
+
+        for (let w = 0; w < data.length; w++) {
+            for (let h = 0; h < data[w].length; h++) {
+                if(data[w][h] == 1){
+                    p.fill(p.noise(w,h) * 255, saturation, 255)
+                    p.square(w * GRID_WIDTH, h * GRID_WIDTH, GRID_WIDTH)
+                }
+            }
+        }
+    }
+
+    p.onRestart = () =>{
+        initialize()
+    }
+
+    p.onPropsUpdate = (props:any)=>{
+        saturation = props.saturation
+        bornCondition = props.bornCondition
+        deadCondition = props.deadCondition
+    }
+
+    function initialize(){
+        p.colorMode(p.HSB, 255)
 
         gridHorizontalNum = p.int(p.width / GRID_WIDTH)
         gridVerticalNum = p.int(p.height / GRID_WIDTH)
@@ -26,30 +59,7 @@ export default function lifegame(p: CustomP5) {
             datacopy[w] = new Array(gridVerticalNum);
         }
 
-        gridRandomise()
-    }
-
-    p.draw = () => {
-        p.background(0)
-        p.fill(fillColor)
-        p.noStroke()
-
-        if(p.frameCount % 40 == 0) updateGrid()
-
-        for (let w = 0; w < data.length; w++) {
-            for (let h = 0; h < data[w].length; h++) {
-                if(data[w][h] == 1)
-                    p.square(w * GRID_WIDTH, h * GRID_WIDTH, GRID_WIDTH)
-            }
-        }
-    }
-
-    p.onPropsUpdate = (props:any)=>{
-        if(props.fillColor){
-            fillColor = props.fillColor
-        } else {
-            fillColor = 255
-        }
+        gridRandomise()        
     }
 
     //グリッドの更新
@@ -76,12 +86,12 @@ export default function lifegame(p: CustomP5) {
                 }
             }
 
-            if(neighbor == 3){
+            if(data[w][h] == 0 && bornCondition.includes(neighbor)){
                 datacopy[w][h] = 1
-            } else if(data[w][h] == 1 && (neighbor == 2 || neighbor == 3)){
-                datacopy[w][h] = 1
-            } else {
+            } else if(data[w][h] == 1 && deadCondition.includes(neighbor)){
                 datacopy[w][h] = 0
+            } else {
+                datacopy[w][h] = data[w][h]
             }
         }
 

@@ -25,7 +25,7 @@ export default function Home() {
       <Head>
         <title>LifeGame</title>
         <meta name="description" content="ライフゲームシュミレーター by p5.js" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href={"/" + process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"} />
       </Head>
       <P5Canvas 
         sketch={lifegame} 
@@ -115,7 +115,7 @@ export default function Home() {
                 <Typography gutterBottom>
                   マス目の多さ (変更時、現在の状態はリセット)
                 </Typography>
-                <Slider min={3} max={50} defaultValue={minGridAmount} onChange={(event:object,value:number)=>{setMinGridAmount(value);}}/>
+                <Slider min={3} max={50} defaultValue={20} onChange={(event:object,value:number)=>{setMinGridAmount(value);}}/>
               </Grid>
             </Grid>
           </Grid>

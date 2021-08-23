@@ -39,6 +39,10 @@ export default function lifegame(p: CustomP5) {
         initialize()
     }
 
+    p.onSave = () => {
+        p.save("life_game")
+    }
+
     p.onPropsUpdate = (props:any)=>{
         saturation = props.saturation
         bornCondition = props.bornCondition

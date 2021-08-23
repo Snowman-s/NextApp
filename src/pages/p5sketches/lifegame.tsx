@@ -6,6 +6,7 @@ import lifegame from "src/components/sketches/lifegame"
 
 export default function Home() {
   const [restart, setRestart] = useState(false)
+  const [save, setSave] = useState(false)
   const [saturation, setSaturation] = useState(255)
   const [bornCondition, setBornCondition] = useState([3])
   const [deadCondition, setDeadCondition] = useState([0, 1, 4, 5, 6, 7, 8])
@@ -30,10 +31,12 @@ export default function Home() {
       <P5Canvas 
         sketch={lifegame} 
         saturation={saturation} 
-        restartRequire={restart} 
         bornCondition={bornCondition} deadCondition={deadCondition} 
         minGridAmount={minGridAmount} 
-        onRestartEnd={()=>{setRestart(false)}}>  
+        restartRequire={restart} 
+        onRestartEnd={()=>{setRestart(false)}}
+        saveRequire={save} 
+        onSaveEnd={()=>{setSave(false)}}>  
         <Paper style={{padding:20, margin:20}}>
         <Grid container direction="column" spacing={1}>
           <Grid item>
@@ -42,6 +45,11 @@ export default function Home() {
               <Typography variant="h2">
                 Life Game
               </Typography>
+              </Grid>
+              <Grid item>
+              <Button variant="contained" color="primary" onClick={()=>{setSave(true)}}>
+                Save
+              </Button>
               </Grid>
               <Grid item>
               <Button variant="contained" color="primary" onClick={()=>{setRestart(true)}}>

@@ -1,4 +1,5 @@
 import { Button, Checkbox, Divider, FormControl, Grid, Input, InputLabel, ListItemText, MenuItem, Paper, Select, Slider, Typography } from "@material-ui/core"
+import Head from "next/head"
 import { ReactNode, useState } from "react"
 import P5Canvas from "src/components/P5Canvas"
 import lifegame from "src/components/sketches/lifegame"
@@ -8,6 +9,7 @@ export default function Home() {
   const [saturation, setSaturation] = useState(255)
   const [bornCondition, setBornCondition] = useState([3])
   const [deadCondition, setDeadCondition] = useState([0, 1, 4, 5, 6, 7, 8])
+  const [minGridAmount, setMinGridAmount] = useState(20)
 
   const neighborSelectValues = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -20,7 +22,18 @@ export default function Home() {
 
   return (
     <div>
-      <P5Canvas sketch={lifegame} saturation={saturation} restartRequire={restart} bornCondition={bornCondition} deadCondition={deadCondition} onRestartEnd={()=>{setRestart(false)}}>  
+      <Head>
+        <title>LifeGame</title>
+        <meta name="description" content="ライフゲームシュミレーター by p5.js" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <P5Canvas 
+        sketch={lifegame} 
+        saturation={saturation} 
+        restartRequire={restart} 
+        bornCondition={bornCondition} deadCondition={deadCondition} 
+        minGridAmount={minGridAmount} 
+        onRestartEnd={()=>{setRestart(false)}}>  
         <Paper style={{padding:20, margin:20}}>
         <Grid container direction="column" spacing={1}>
           <Grid item>
@@ -93,6 +106,16 @@ export default function Home() {
                     ))}
                   </Select>
                 </FormControl>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Grid container direction="row" spacing={2}>
+              <Grid item xs>
+                <Typography gutterBottom>
+                  マス目の多さ (変更時、現在の状態はリセット)
+                </Typography>
+                <Slider min={3} max={50} defaultValue={minGridAmount} onChange={(event:object,value:number)=>{setMinGridAmount(value);}}/>
               </Grid>
             </Grid>
           </Grid>

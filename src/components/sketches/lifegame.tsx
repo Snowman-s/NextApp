@@ -1,7 +1,8 @@
 import {CustomP5} from 'src/others/CustomP5'
 
 export default function lifegame(p: CustomP5) {
-    const GRID_WIDTH = 50
+    let minGridAmount = 20
+    let gridWidth:number = 0
 
     let gridHorizontalNum:number
     let gridVerticalNum:number
@@ -28,7 +29,7 @@ export default function lifegame(p: CustomP5) {
             for (let h = 0; h < data[w].length; h++) {
                 if(data[w][h] == 1){
                     p.fill(p.noise(w,h) * 255, saturation, 255)
-                    p.square(w * GRID_WIDTH, h * GRID_WIDTH, GRID_WIDTH)
+                    p.square(w * gridWidth, h * gridWidth, gridWidth)
                 }
             }
         }
@@ -42,13 +43,19 @@ export default function lifegame(p: CustomP5) {
         saturation = props.saturation
         bornCondition = props.bornCondition
         deadCondition = props.deadCondition
+        if(minGridAmount != props.minGridAmount){
+            minGridAmount = props.minGridAmount
+            initialize()
+        }
     }
 
     function initialize(){
         p.colorMode(p.HSB, 255)
 
-        gridHorizontalNum = p.int(p.width / GRID_WIDTH)
-        gridVerticalNum = p.int(p.height / GRID_WIDTH)
+        gridWidth = p.min(p.int(p.width / minGridAmount), p.int(p.height / minGridAmount))
+
+        gridHorizontalNum = p.int(p.width / gridWidth)
+        gridVerticalNum = p.int(p.height / gridWidth)
 
         data = new Array(gridHorizontalNum)
         datacopy = new Array(gridHorizontalNum)

@@ -11,7 +11,7 @@ export default function lifegame(p: CustomP5) {
 
     let saturation:number = 255
     let bornCondition:number[] = [3]
-    let deadCondition:number[] = [1, 2, 5, 6, 7, 8]
+    let deadCondition:number[] = [0, 1, 4, 5, 6, 7, 8]
 
     p.setup = () => {
         p.createCanvas(p.windowWidth, p.windowHeight)

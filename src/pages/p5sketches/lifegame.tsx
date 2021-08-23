@@ -7,7 +7,7 @@ export default function Home() {
   const [restart, setRestart] = useState(false)
   const [saturation, setSaturation] = useState(255)
   const [bornCondition, setBornCondition] = useState([3])
-  const [deadCondition, setDeadCondition] = useState([0, 1, 2, 5, 6, 7, 8])
+  const [deadCondition, setDeadCondition] = useState([0, 1, 4, 5, 6, 7, 8])
 
   const neighborSelectValues = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 

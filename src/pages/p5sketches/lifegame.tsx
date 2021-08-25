@@ -2,7 +2,7 @@ import { Button, Checkbox, Divider, FormControl, Grid, Input, InputLabel, ListIt
 import Head from "next/head"
 import { ReactNode, useState } from "react"
 import P5Canvas from "src/components/P5Canvas"
-import lifegame from "src/components/sketches/lifegame"
+import lifegame from "src/others/sketches/lifegame"
 
 export default function Home() {
   const [restart, setRestart] = useState(false)
@@ -26,7 +26,7 @@ export default function Home() {
       <Head>
         <title>LifeGame</title>
         <meta name="description" content="ライフゲームシュミレーター by p5.js" />
-        <link rel="icon" href={"/" + process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"} />
+        <link rel="icon" href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"} />
       </Head>
       <P5Canvas 
         sketch={lifegame} 

@@ -1,5 +1,7 @@
-import { Button, Checkbox, Divider, FormControl, Grid, Input, InputLabel, ListItemText, MenuItem, Paper, Select, Slider, Typography } from "@material-ui/core"
+import { Button, Checkbox, Divider, FormControl, Grid, InputLabel, ListItemText, MenuItem, Paper, Select, Slider, Typography, Slide, Container, IconButton, Fab } from "@material-ui/core"
+import {ExpandLess, ExpandMore} from "@material-ui/icons"
 import Head from "next/head"
+import { Color } from "p5"
 import { ReactNode, useState } from "react"
 import P5Canvas from "src/components/P5Canvas"
 import lifegame from "src/others/sketches/lifegame"
@@ -11,6 +13,7 @@ export default function Home() {
   const [bornCondition, setBornCondition] = useState([3])
   const [deadCondition, setDeadCondition] = useState([0, 1, 4, 5, 6, 7, 8])
   const [minGridAmount, setMinGridAmount] = useState(20)
+  const [slideIn, setSlideIn] = useState(true)
 
   const neighborSelectValues = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -20,6 +23,10 @@ export default function Home() {
   const handleChangeBornCondition = (event: React.ChangeEvent<{ name?:String, value: unknown }>, child:ReactNode) => {
     setBornCondition((event.target.value as number[]).sort())
   };
+
+  const toggleSlideIn = ()=>{
+    setSlideIn(!slideIn)
+  }
 
   return (
     <div>
@@ -36,7 +43,10 @@ export default function Home() {
         restartRequire={restart} 
         onRestartEnd={()=>{setRestart(false)}}
         saveRequire={save} 
-        onSaveEnd={()=>{setSave(false)}}>  
+        onSaveEnd={()=>{setSave(false)}}> 
+        <Grid container direction="row" spacing={1}>
+        <Grid item>
+        <Slide in={slideIn} >
         <Paper style={{padding:20, margin:20}}>
         <Grid container direction="column" spacing={1}>
           <Grid item>
@@ -129,6 +139,16 @@ export default function Home() {
           </Grid>
         </Grid>
         </Paper>
+        </Slide>
+        </Grid>
+        <Grid item>
+        <Fab style={{marginTop:25}} onClick={toggleSlideIn} color="secondary">
+          {
+            slideIn? <ExpandLess/> : <ExpandMore/>
+          }
+        </Fab>
+        </Grid>
+        </Grid>
       </P5Canvas>
     </div>
   )

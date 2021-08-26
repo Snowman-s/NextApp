@@ -103,7 +103,10 @@ export default function lifegame(p: CustomP5) {
             }
         }
 
-        ants = [createNewAnt()]
+        ants = []
+        for (let i = 0; i < antAmount; i++) {
+            ants.push(createNewAnt())            
+        }
     }
 
     function createNewAnt() :{x:number, y: number, degDirection: number;}{

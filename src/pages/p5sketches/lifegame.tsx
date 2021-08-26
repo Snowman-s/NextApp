@@ -3,6 +3,7 @@ import {ExpandLess, ExpandMore} from "@material-ui/icons"
 import Head from "next/head"
 import { Color } from "p5"
 import { ReactNode, useState } from "react"
+import { CanvasOperationPanel } from "src/components/CanvasOperationPanel"
 import P5Canvas from "src/components/P5Canvas"
 import lifegame from "src/others/sketches/lifegame"
 
@@ -24,10 +25,6 @@ export default function Home() {
     setBornCondition((event.target.value as number[]).sort())
   };
 
-  const toggleSlideIn = ()=>{
-    setSlideIn(!slideIn)
-  }
-
   return (
     <div>
       <Head>
@@ -44,33 +41,8 @@ export default function Home() {
         onRestartEnd={()=>{setRestart(false)}}
         saveRequire={save} 
         onSaveEnd={()=>{setSave(false)}}> 
-        <Grid container direction="row" spacing={1}>
-        <Grid item>
-        <Slide in={slideIn} >
-        <Paper style={{padding:20, margin:20}}>
-        <Grid container direction="column" spacing={1}>
-          <Grid item>
-            <Grid container direction="row" alignItems="center" spacing={1}>
-              <Grid item>
-              <Typography variant="h2">
-                Life Game
-              </Typography>
-              </Grid>
-              <Grid item>
-              <Button variant="contained" color="primary" onClick={()=>{setSave(true)}}>
-                Save
-              </Button>
-              </Grid>
-              <Grid item>
-              <Button variant="contained" color="primary" onClick={()=>{setRestart(true)}}>
-                Restart
-              </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item>
-            <Divider/>
-          </Grid>
+        <CanvasOperationPanel title="Life Game" onRequireRestart={()=>{setRestart(true)}} onRequireSave={()=>{setSave(true)}}>
+          <Grid container direction="column">
           <Grid item>
             <Grid container direction="row" spacing={2}>
               <Grid item xs>
@@ -138,17 +110,7 @@ export default function Home() {
             </Grid>
           </Grid>
         </Grid>
-        </Paper>
-        </Slide>
-        </Grid>
-        <Grid item>
-        <Fab style={{marginTop:25}} onClick={toggleSlideIn} color="secondary">
-          {
-            slideIn? <ExpandLess/> : <ExpandMore/>
-          }
-        </Fab>
-        </Grid>
-        </Grid>
+        </CanvasOperationPanel>
       </P5Canvas>
     </div>
   )

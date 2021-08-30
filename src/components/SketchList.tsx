@@ -26,7 +26,7 @@ export function SketchList(props:SketchListProps){
                         router.push(sketchInfo.sketchURL)
                     }
                 }>
-                  <img src={sketchInfo.sketchImage} width={50} height={50}/>
+                  <img src={sketchInfo.sketchImage} alt={sketchInfo.sketchName} width={50} height={50}/>
                   {sketchInfo.sketchName}
                 </ListItem>
                 )

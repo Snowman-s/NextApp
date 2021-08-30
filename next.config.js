@@ -4,4 +4,5 @@ module.exports = {
   reactStrictMode: true,
   basePath: production? '/NextApp': '',
   assetPrefix: production? '/NextApp': '',
+  trailingSlash: true,
 }

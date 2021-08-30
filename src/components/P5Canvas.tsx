@@ -1,5 +1,6 @@
 import {CustomP5, CustomP5Props } from 'src/others/CustomP5'
 import React from 'react'
+import { CssBaseline } from '@material-ui/core'
 
 export default class P5Canvas extends React.Component<CustomP5Props, {p5obj:CustomP5}>{  
     myRef:React.RefObject<HTMLDivElement>
@@ -39,11 +40,9 @@ export default class P5Canvas extends React.Component<CustomP5Props, {p5obj:Cust
     render(){
         return (
             <div ref={this.myRef} style={{position:"relative"}}>
-            <div ref={this.canvasRef} style={{position:"absolute", zIndex:0}}>
+            <div ref={this.canvasRef} style={{position:"absolute", zIndex:-1}}>
             </div>
-            <div style={{position:"absolute", zIndex:1}}>
-                {this.props.children}
-            </div>
+                    {this.props.children}
             </div>
         )
     }

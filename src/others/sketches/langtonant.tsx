@@ -1,6 +1,6 @@
 import {CustomP5} from 'src/others/CustomP5'
 
-export default function lifegame(p: CustomP5) {
+export default function langtonant(p: CustomP5) {
     let minGridAmount = 20
     let gridWidth:number = 0
 

@@ -44,10 +44,10 @@ export default function lifegame(p: CustomP5) {
     }
 
     p.onPropsUpdate = (props:any)=>{
-        saturation = props.saturation
-        bornCondition = props.bornCondition
-        deadCondition = props.deadCondition
-        if(minGridAmount != props.minGridAmount){
+        saturation = props.saturation ?? saturation
+        bornCondition = props.bornCondition ?? bornCondition
+        deadCondition = props.deadCondition ?? deadCondition
+        if(props.minGridAmount != null && minGridAmount != props.minGridAmount){
             minGridAmount = props.minGridAmount
             initialize()
         }

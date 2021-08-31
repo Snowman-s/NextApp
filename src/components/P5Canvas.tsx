@@ -1,6 +1,5 @@
 import {CustomP5, CustomP5Props } from 'src/others/CustomP5'
 import React from 'react'
-import { CssBaseline } from '@material-ui/core'
 
 export default class P5Canvas extends React.Component<CustomP5Props, {p5obj:CustomP5}>{  
     myRef:React.RefObject<HTMLDivElement>

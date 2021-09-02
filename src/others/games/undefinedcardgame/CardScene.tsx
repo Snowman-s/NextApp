@@ -1,7 +1,7 @@
 import { CustomP5 } from "src/others/CustomP5";
 import P5Button from "../P5Button";
 import P5Typography from "../P5Typography";
-import { Card, createRandomCard } from "./cards/Card";
+import { createRandomCard } from "./cards/Card";
 import { Player } from "./fields/Player";
 import Scene from "./Scene";
 import calcCenterSquare from "./Utility";
@@ -17,6 +17,7 @@ export default class CardScene extends Scene{
 
     player1 : Player;
     player2 : Player;
+    turnPlayer: Player;
 
     scaleToWorldX(normalizedX:number){
         return normalizedX * this.c.size;
@@ -90,6 +91,8 @@ export default class CardScene extends Scene{
             createRandomCard(),
             createRandomCard()
         );
+
+        this.turnPlayer = this.player1;
     }
     
     update(p5: CustomP5): void {
@@ -127,10 +130,7 @@ export default class CardScene extends Scene{
 
                 p5.push();
                 p5.fill(255);
-                p5.square(
-                    x,
-                    y,
-                    cardSize);
+                p5.square(x, y, cardSize);
                 p5.fill(0);
                 p5.stroke(0);
                 p5.textSize(p5.int(0.3 * cardSize));
@@ -145,7 +145,7 @@ export default class CardScene extends Scene{
         this.player2InfoText.draw(p5);
 
         this.player2.cards.forEach(
-            (card, index) => {
+            (_card, index) => {
                 const cardSize = this.scaleToWorldX(0.2);
                 const x = this.convertToWorldX(0.2 * index);
                 const y = 0;

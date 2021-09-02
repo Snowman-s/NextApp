@@ -1,5 +1,7 @@
+import { FieldContext } from "../fields/FieldContext";
+
 class Effect {
-    execute(){
+    execute(context: FieldContext){
 
     }
 }
@@ -21,8 +23,8 @@ export class Card{
         return this.effects.map(effect => "・" + effect.toString() + "\n").join("");
     }
 
-    executeEffects(){
-        this.effects.forEach(effect => effect.execute());
+    executeEffects(context: FieldContext){
+        this.effects.forEach(effect => effect.execute(context));
     }
 }
 

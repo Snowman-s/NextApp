@@ -3,6 +3,7 @@ import GradationCircle from "./backgrounds/GradationCircle";
 import CrackerEffect from "./effects/CrackerEffect";
 import RendererComponent from "./RendererComponent";
 import FallStringEffects from "./strings/FallStringEffect";
+import FountainStringEffects from "./strings/FountainStringEffect";
 
 export default function celebrate(p: CustomP5){
     let happiness = 50;
@@ -12,7 +13,8 @@ export default function celebrate(p: CustomP5){
         () => new GradationCircle()
     ];
     const stringRendererCandidates:(() => RendererComponent)[] = [
-        () => new FallStringEffects(happiness, celebrateString)
+        () => new FallStringEffects(happiness, celebrateString),
+        () => new FountainStringEffects(happiness, celebrateString)
     ];
     const effectRendererCandidates:(() => RendererComponent)[] = [
         () => new CrackerEffect(happiness)
@@ -61,6 +63,10 @@ export default function celebrate(p: CustomP5){
     function initialize(){
         backgroundRenderers = [backgroundRendererCandidates[0]()]
         effectRenderers = [effectRendererCandidates[0]()]
-        stringRenderers = [stringRendererCandidates[0]()]
+        stringRenderers = [stringRendererCandidates[p.int(p.random(stringRendererCandidates.length))]()]
+        
+        backgroundRenderers.forEach(renderer => renderer.setup(p));
+        effectRenderers.forEach(renderer => renderer.setup(p));
+        stringRenderers.forEach(renderer => renderer.setup(p));
     }
 }

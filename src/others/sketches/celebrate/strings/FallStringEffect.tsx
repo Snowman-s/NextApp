@@ -11,6 +11,10 @@ export default class FallStringEffects implements RendererComponent{
         this.text = text;
     }
 
+    setup(p:CustomP5):void {
+        
+    }
+
     render(p: CustomP5): void {
         const textSize = p.min(p.width/this.text.length, p.height); 
 

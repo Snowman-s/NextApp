@@ -2,6 +2,10 @@ import { CustomP5 } from "src/others/CustomP5";
 import RendererComponent from "../RendererComponent";
 
 export default class GradationCircle implements RendererComponent {
+    setup(p:CustomP5):void {
+        
+    }
+
     render(p: CustomP5): void {
         p.push();
         p.colorMode(p.HSB, 1);

@@ -22,11 +22,10 @@ export default class CrackerEffect implements RendererComponent{
         for (let angle = 0, maxAngle = p.int(this.happiness/3+3); angle < maxAngle; angle++) {
             const radAngle = angle / maxAngle * p.TAU;
             const cos = p.cos(radAngle)
-            const sin = p.sin(radAngle)   
-            const noise = p.noise(angle);             
+            const sin = p.sin(radAngle)            
 
             for(let n=-300;n<0;n+=5){
-                const radius = p.max(0,n + repeatFrame * p.max(150,300-repeatFrame) / 200 * (6+4*noise));
+                const radius = p.max(0,n + repeatFrame * p.max(150,300-repeatFrame) / 200 * (8));
                 p.fill(radAngle / p.PI, 2, 2,(600-radius)/300);
                 p.circle(p.width / 2 + radius * cos, p.height / 2 + radius * sin, (150+n)/20);
             }

@@ -43,7 +43,7 @@ export default function Home() {
             <Grid container direction="row" spacing={2}>
               <Grid item xs>
                 <Typography gutterBottom>
-                  ハピネス度
+                  ハピネス度 (負荷注意！)
                 </Typography>
                 <Slider max={100} defaultValue={50} onChange={(event:object,value:number)=>{setHappiness(value);}}/>
               </Grid>

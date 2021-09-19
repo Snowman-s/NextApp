@@ -20,7 +20,8 @@ export default function Home() {
 
   const sketches = [
     {sketchName:"Life Game", sketchURL:"/p5sketches/lifegame", sketchImage: process.env.NEXT_PUBLIC_ASSET_PREFIX + "/sketchimage/lifegame.png"}, 
-    {sketchName:"Langton's Ant", sketchURL:"/p5sketches/langtonant", sketchImage: process.env.NEXT_PUBLIC_ASSET_PREFIX + "/sketchimage/langtonant.png"}
+    {sketchName:"Langton's Ant", sketchURL:"/p5sketches/langtonant", sketchImage: process.env.NEXT_PUBLIC_ASSET_PREFIX + "/sketchimage/langtonant.png"}, 
+    {sketchName:"Celebrate", sketchURL:"/p5sketches/celebrate", sketchImage: process.env.NEXT_PUBLIC_ASSET_PREFIX + "/sketchimage/celebrate.png"}
   ]
 
   return (

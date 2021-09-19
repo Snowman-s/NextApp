@@ -5,10 +5,10 @@ import Head from "next/dist/shared/lib/head";
 
 function getUnityContext(){
     const unityContext = new UnityContext({
-        loaderUrl: "../../" + process.env.NEXT_PUBLIC_ASSET_PREFIX + "/Build/Release.loader.js",
-        dataUrl: "../../" + process.env.NEXT_PUBLIC_ASSET_PREFIX + "/Build/Release.data",
-        frameworkUrl: "../../" + process.env.NEXT_PUBLIC_ASSET_PREFIX + "/Build/Release.framework.js",
-        codeUrl: "../../" + process.env.NEXT_PUBLIC_ASSET_PREFIX + "/Build/Release.wasm",
+        loaderUrl: process.env.NEXT_PUBLIC_ASSET_PREFIX + "/Build/Release.loader.js",
+        dataUrl: process.env.NEXT_PUBLIC_ASSET_PREFIX + "/Build/Release.data",
+        frameworkUrl: process.env.NEXT_PUBLIC_ASSET_PREFIX + "/Build/Release.framework.js",
+        codeUrl: process.env.NEXT_PUBLIC_ASSET_PREFIX + "/Build/Release.wasm",
     });
     
     return unityContext;

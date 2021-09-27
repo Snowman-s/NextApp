@@ -55,7 +55,7 @@ export default function celebrate(p: CustomP5){
         happiness = props.happiness;
         celebrateString = props.celebrateString;
 
-        initialize();
+        if(props.restartRequire) initialize();
     }
 
     p.onRestart = () => {

@@ -38,6 +38,7 @@ export default function celebrate(p: CustomP5){
 
     p.setup = () => {
         p.createCanvas(p.windowWidth, p.windowHeight);
+        initialize();
     }
 
     p.draw = () => {

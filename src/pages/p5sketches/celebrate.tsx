@@ -27,7 +27,7 @@ export default function Home() {
         
         happiness = {happiness}
         celebrateString = {celebrateString}> 
-        <CanvasOperationPanel title="せれぶれいと" onRequireRestart={()=>{setRestart(true)}} onRequireSave={()=>{setSave(true)}}>
+        <CanvasOperationPanel title="せれぶれいと" onRequireRestart={()=>{setRestart(true)}} onRequireSave={()=>{setSave(true)}} slideOutOnRestart={true}>
           <Grid container direction="column">
           <Grid item>
             <Grid container direction="row" spacing={2}>

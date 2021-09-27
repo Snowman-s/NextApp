@@ -6,6 +6,7 @@ export class CanvasOperationPanelProps{
     title:String;
     onRequireRestart: ()=>void;
     onRequireSave: ()=>void;
+    slideOutOnRestart?: boolean;
     children?:ReactNode;
 }
 
@@ -15,12 +16,14 @@ export function CanvasOperationPanel(props:CanvasOperationPanelProps){
     const toggleSlideIn = ()=>{
         setSlideIn(!slideIn)
     }
-    
+
+    const actualSlideIn = slideIn;
+
     return (
         <div>
         <Grid container direction="row" spacing={1}>
         <Grid item>
-        <Slide in={slideIn} >
+        <Slide in={actualSlideIn} >
         <Paper style={{padding:20, margin:20}}>
         <Grid container direction="column" spacing={1}>
         <Grid item>
@@ -36,7 +39,10 @@ export function CanvasOperationPanel(props:CanvasOperationPanelProps){
             </Button>
             </Grid>
             <Grid item>
-            <Button variant="contained" color="primary" onClick={()=>{props.onRequireRestart()}}>
+            <Button variant="contained" color="primary" onClick={()=>{
+                if(props.slideOutOnRestart??false)setSlideIn(false); 
+                props.onRequireRestart();
+            }}>
                 Restart
             </Button>
             </Grid>
@@ -55,7 +61,7 @@ export function CanvasOperationPanel(props:CanvasOperationPanelProps){
         <Grid item>
         <Fab style={{marginTop:25}} onClick={toggleSlideIn} color="secondary">
         {
-            slideIn? <ExpandLess/> : <ExpandMore/>
+            actualSlideIn? <ExpandLess/> : <ExpandMore/>
         }
         </Fab>
         </Grid>

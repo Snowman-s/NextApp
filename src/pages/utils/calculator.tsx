@@ -1,10 +1,7 @@
 import Head from "next/head";
-import { Icon, IconButton, TextField, Typography } from "@material-ui/core";
-import { Compiler } from "bnf";
-import bnfToken from "src/others/bnf/token";
-import calcCenterSquare from "src/others/games/undefinedcardgame/Utility";
+import { IconButton, TextField, Typography } from "@material-ui/core";
 import calcIt from "src/others/calculator/calc";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 
 export default function Home() {
   const [result, setResult] = useState("0.0");

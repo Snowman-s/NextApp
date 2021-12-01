@@ -1,50 +1,39 @@
 import { Compiler } from "bnf";
 import bnfToken from "src/others/bnf/token";
+import { createNodes } from "./evaluation_node";
 
 export default function calcIt(it: String) {
   let compiler = new Compiler();
   compiler.AddLanguage(
     `
-    <SYNTAX> ::= <evaluation>
-    <evaluation> ::= <number> <OWSP> <type> <OWSP> <number>
-    <number> ::= <DIGITS>
-    <type> ::= "+" | "-" | "/" | "*"
-    `,
-    "testLang"
+    <SYNTAX> ::= <term>
+
+    <two_operator> ::= "+" | "-" | "*" | "/"
+
+    <term> ::= <OWSP> <NUMBER> <OWSP> *(<two_operator> <OWSP> <NUMBER> <OWSP>)
+    `.trim(),
+    "calcLang"
   );
+
   compiler.SetRuleEvents({
-    evaluation(
-      token: bnfToken,
-      dataObject: { num1: number; op: string; num2: number }
-    ) {
-      dataObject.num1 = parseInt(token.tokens[0].value, 10);
-      dataObject.op = token.tokens[2].value;
-      dataObject.num2 = parseInt(token.tokens[4].value, 10);
+    term(token: bnfToken, result: { result: number }) {
+      const nodes = createNodes(token);
+
+      const stack = [];
+
+      nodes.forEach((n) => {
+        n.calc(stack);
+      });
+
+      result.result = stack[0];
     },
   });
 
-  let dataObject: { num1: number; op: string; num2: number } = {
-    num1: 0,
-    op: "",
-    num2: 0,
-  };
+  let result: { result: number } = { result: 0 };
 
-  compiler.ParseScript(it, dataObject);
+  compiler.ParseScript(it, result);
 
-  switch (dataObject.op) {
-    case "+":
-      return dataObject.num1 + dataObject.num2;
+  if (isNaN(result.result)) return "?????";
 
-    case "-":
-      return dataObject.num1 - dataObject.num2;
-
-    case "*":
-      return dataObject.num1 * dataObject.num2;
-
-    case "/":
-      return dataObject.num1 / dataObject.num2;
-
-    default:
-      return "?????";
-  }
+  return result.result;
 }

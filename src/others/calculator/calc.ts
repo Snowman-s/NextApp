@@ -1,6 +1,6 @@
 import { Compiler } from "bnf";
 import bnfToken from "src/others/bnf/token";
-import { createNodes } from "./evaluation_node";
+import { createNode } from "./evaluation_node";
 
 export default function calcIt(it: String) {
   let compiler = new Compiler();
@@ -10,22 +10,19 @@ export default function calcIt(it: String) {
 
     <two_operator> ::= "+" | "-" | "*" | "/"
 
-    <term> ::= <OWSP> <NUMBER> <OWSP> *(<two_operator> <OWSP> <NUMBER> <OWSP>)
+    <two_op_term> ::= <exp> 1*(<two_operator> <exp>)
+
+    <term> ::= <OWSP> (<exp> | <two_op_term> | <NUMBER>) <OWSP>
+
+    <bracket_exp> ::= "(" <term> ")"
+    <exp> ::= <OWSP> ( <NUMBER> | <bracket_exp> ) <OWSP>
     `.trim(),
     "calcLang"
   );
 
   compiler.SetRuleEvents({
-    term(token: bnfToken, result: { result: number }) {
-      const nodes = createNodes(token);
-
-      const stack = [];
-
-      nodes.forEach((n) => {
-        n.calc(stack);
-      });
-
-      result.result = stack[0];
+    SYNTAX(token: bnfToken, result: { result: number }) {
+      result.result = createNode(token.tokens[0]).calc();
     },
   });
 

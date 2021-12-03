@@ -12,7 +12,7 @@ export default function calcIt(it: String) {
 
     <two_op_term> ::= <exp> 1*(<two_operator> <exp>)
 
-    <term> ::= <OWSP> (<exp> | <two_op_term> | <NUMBER>) <OWSP>
+    <term> ::= <OWSP> (<exp> | <two_op_term>) <OWSP>
 
     <bracket_exp> ::= "(" <term> ")"
     <exp> ::= <OWSP> ( <NUMBER> | <bracket_exp> ) <OWSP>

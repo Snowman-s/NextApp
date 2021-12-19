@@ -1,17 +1,13 @@
 import Head from "next/head";
-import { IconButton, TextField, Typography } from "@material-ui/core";
+import { IconButton, TextField, Typography, Grid } from "@material-ui/core";
 import calcIt from "src/others/calculator/calc";
 import { useState } from "react";
 
 export default function Home() {
   const [result, setResult] = useState("0.0");
-  const [formula, setFormula] = useState("");
 
   const onFormulaChanged = function (event: { target: { value: string } }) {
-    setFormula(event.target.value);
-  };
-  const onCalcButtonClicked = function () {
-    setResult(calcIt(formula).toString());
+    setResult(calcIt(event.target.value).toString());
   };
 
   return (
@@ -24,11 +20,17 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
       </Head>
-      <TextField onChange={onFormulaChanged} />
-      <IconButton onClick={onCalcButtonClicked}>
-        <Typography> = </Typography>
-      </IconButton>
-      <Typography>{result}</Typography>
+      <Grid container>
+        <Grid item>
+          <TextField onChange={onFormulaChanged} />
+        </Grid>
+        <Grid item>
+          <Typography> = </Typography>
+        </Grid>
+        <Grid item>
+          <Typography>{result}</Typography>
+        </Grid>
+      </Grid>
     </div>
   );
 }

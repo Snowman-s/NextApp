@@ -8,13 +8,17 @@ export default function calcIt(it: String) {
     `
     <SYNTAX> ::= <term>
 
+    <one_operator> ::= "+" | "-" | "sin" | "cos" | "tan"
+    <one_op_term> ::= <one_operator> <exp>
+
     <two_operator> ::= "+" | "-" | "*" | "/"
 
     <two_op_term> ::= <exp> 1*(<two_operator> <exp>)
 
-    <term> ::= <OWSP> (<exp> | <two_op_term>) <OWSP>
+    <term> ::= <OWSP> (<exp> | <one_op_term> | <two_op_term>) <OWSP>
 
     <bracket_exp> ::= "(" <term> ")"
+  
     <exp> ::= <OWSP> ( <NUMBER> | <bracket_exp> ) <OWSP>
     `.trim(),
     "calcLang"
@@ -26,7 +30,7 @@ export default function calcIt(it: String) {
     },
   });
 
-  let result: { result: number } = { result: 0 };
+  let result: { result: number } = { result: NaN };
 
   compiler.ParseScript(it, result);
 

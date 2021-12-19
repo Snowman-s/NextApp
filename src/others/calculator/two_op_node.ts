@@ -20,8 +20,8 @@ export default class two_op_node implements evaluation_node {
 
     token.tokens.forEach((child) => {
       switch (child.name) {
-        case "exp":
-          out.push(two_op_exp_element.create(child));
+        case "term":
+          out.push(two_op_term_element.create(child));
           break;
         case "two_operator":
           const theNode = operator_element.create(child);
@@ -49,17 +49,17 @@ interface two_op_element {
   do(stack: Array<number>): void;
 }
 
-class two_op_exp_element implements two_op_element {
-  exp: evaluation_node;
+class two_op_term_element implements two_op_element {
+  term: evaluation_node;
 
   do(stack: Array<number>) {
-    stack.push(this.exp.calc());
+    stack.push(this.term.calc());
   }
 
   static create(token: bnfToken) {
-    var node = new two_op_exp_element();
+    var node = new two_op_term_element();
 
-    node.exp = createNode(token);
+    node.term = createNode(token);
 
     return node;
   }

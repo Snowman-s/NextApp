@@ -3,17 +3,17 @@ import two_op_node from "./two_op_node";
 
 export function createNode(token: bnfToken): evaluation_node {
   switch (token.name) {
-    case "one_op_term":
+    case "one_op_exp":
       return one_op_node.create(token);
-    case "two_op_term":
+    case "two_op_exp":
       return two_op_node.create(token);
     case "NUMBER":
       return number_node.create(token);
-    case "term":
-      return createNode(token.tokens[1]);
-    case "bracket_exp":
-      return createNode(token.tokens[1]);
     case "exp":
+      return createNode(token.tokens[1]);
+    case "bracket_term":
+      return createNode(token.tokens[1]);
+    case "term":
       return createNode(token.tokens[1]);
     default:
       return nop_node.create(token);
@@ -53,22 +53,22 @@ class number_node implements evaluation_node {
 
 class one_op_node implements evaluation_node {
   op: string;
-  exp: evaluation_node;
+  term: evaluation_node;
 
   calc() {
-    const expResult = this.exp.calc();
+    const termResult = this.term.calc();
 
     switch (this.op) {
       case "+":
-        return expResult;
+        return termResult;
       case "-":
-        return -expResult;
+        return -termResult;
       case "sin":
-        return Math.sin(expResult);
+        return Math.sin(termResult);
       case "cos":
-        return Math.cos(expResult);
+        return Math.cos(termResult);
       case "tan":
-        return Math.tan(expResult);
+        return Math.tan(termResult);
       default:
         return NaN;
     }
@@ -78,7 +78,7 @@ class one_op_node implements evaluation_node {
     var node = new one_op_node();
 
     node.op = token.tokens[0].value;
-    node.exp = createNode(token.tokens[1]);
+    node.term = createNode(token.tokens[1]);
 
     return node;
   }

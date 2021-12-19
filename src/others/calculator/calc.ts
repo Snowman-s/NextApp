@@ -6,20 +6,20 @@ export default function calcIt(it: String) {
   let compiler = new Compiler();
   compiler.AddLanguage(
     `
-    <SYNTAX> ::= <term>
+    <SYNTAX> ::= <exp>
 
     <one_operator> ::= "+" | "-" | "sin" | "cos" | "tan"
-    <one_op_term> ::= <one_operator> <exp>
+    <one_op_exp> ::= <one_operator> <term>
 
     <two_operator> ::= "+" | "-" | "*" | "/"
 
-    <two_op_term> ::= <exp> 1*(<two_operator> <exp>)
+    <two_op_exp> ::= <term> 1*(<two_operator> <term>)
 
-    <term> ::= <OWSP> (<exp> | <one_op_term> | <two_op_term>) <OWSP>
+    <exp> ::= <OWSP> (<term> | <one_op_exp> | <two_op_exp>) <OWSP>
 
-    <bracket_exp> ::= "(" <term> ")"
+    <bracket_term> ::= "(" <exp> ")"
   
-    <exp> ::= <OWSP> ( <NUMBER> | <bracket_exp> ) <OWSP>
+    <term> ::= <OWSP> ( <NUMBER> | <bracket_term> ) <OWSP>
     `.trim(),
     "calcLang"
   );
@@ -27,6 +27,8 @@ export default function calcIt(it: String) {
   compiler.SetRuleEvents({
     SYNTAX(token: bnfToken, result: { result: number }) {
       result.result = createNode(token.tokens[0]).calc();
+
+      console.log(createNode(token.tokens[0]));
     },
   });
 

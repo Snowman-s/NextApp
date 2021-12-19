@@ -7,8 +7,14 @@ export function createNode(token: bnfToken): evaluation_node {
       return one_op_node.create(token);
     case "two_op_exp":
       return two_op_node.create(token);
+    case "string_constants":
+      return string_constants_node.create(token);
     case "NUMBER":
       return number_node.create(token);
+    case "signed_constants":
+      return signed_constants_node.create(token);
+    case "unsigned_constants":
+      return createNode(token.tokens[0]);
     case "exp":
       return createNode(token.tokens[1]);
     case "bracket_term":
@@ -35,6 +41,32 @@ class nop_node implements evaluation_node {
   }
 }
 
+class string_constants_node implements evaluation_node {
+  constants: number;
+
+  calc() {
+    return this.constants;
+  }
+
+  static create(token: bnfToken) {
+    var node = new string_constants_node();
+
+    switch (token.value) {
+      case "PI":
+        node.constants = Math.PI;
+        break;
+      case "E":
+        node.constants = Math.E;
+        break;
+      default:
+        node.constants = NaN;
+        break;
+    }
+
+    return node;
+  }
+}
+
 class number_node implements evaluation_node {
   num: number;
 
@@ -46,6 +78,38 @@ class number_node implements evaluation_node {
     var node = new number_node();
 
     node.num = parseFloat(token.value);
+
+    return node;
+  }
+}
+
+class signed_constants_node implements evaluation_node {
+  op: string;
+  unsigned_constants: evaluation_node;
+
+  calc() {
+    const constantsResult = this.unsigned_constants.calc();
+
+    switch (this.op) {
+      case "+":
+        return constantsResult;
+      case "-":
+        return -constantsResult;
+      default:
+        return NaN;
+    }
+  }
+
+  static create(token: bnfToken) {
+    var node = new signed_constants_node();
+
+    if (token.tokens.length == 1) {
+      node.op = "+";
+      node.unsigned_constants = createNode(token.tokens[0]);
+    } else {
+      node.op = token.tokens[0].value;
+      node.unsigned_constants = createNode(token.tokens[1]);
+    }
 
     return node;
   }

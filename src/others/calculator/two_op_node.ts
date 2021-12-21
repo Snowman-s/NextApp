@@ -85,6 +85,9 @@ class operator_element implements two_op_element {
       case "/":
         stack.push(num2 / num1);
         break;
+      case "^":
+        stack.push(num2 ** num1);
+        break;
       default:
         stack.push(NaN);
         break;

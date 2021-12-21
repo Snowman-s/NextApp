@@ -14,7 +14,7 @@ export default function calcIt(it: String) {
     <one_operator> ::= "+" | "-" | "sin" | "cos" | "tan"
     <one_op_exp> ::= <one_operator> <term>
 
-    <two_operator> ::= "+" | "-" | "*" | "/"
+    <two_operator> ::= "+" | "-" | "*" | "/"  | "^"
     <two_op_exp> ::= <term> 1*(<two_operator> <term>)
 
     <exp> ::= <OWSP> (<term> | <two_op_exp>) <OWSP>

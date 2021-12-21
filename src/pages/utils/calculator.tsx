@@ -7,7 +7,8 @@ export default function Home() {
   const [result, setResult] = useState("0.0");
 
   const onFormulaChanged = function (event: { target: { value: string } }) {
-    setResult(calcIt(event.target.value).toString());
+    const answer = calcIt(event.target.value);
+    setResult(typeof answer == "number" ? answer.toFixed(10) : answer);
   };
 
   return (

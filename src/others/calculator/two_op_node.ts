@@ -102,6 +102,8 @@ class operator_element implements two_op_element {
       case "*":
       case "/":
         return 2;
+      case "^":
+        return 3;
       default:
         return 0;
     }

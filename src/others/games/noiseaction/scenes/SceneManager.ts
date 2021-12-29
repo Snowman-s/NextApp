@@ -47,4 +47,10 @@ export default class SceneManager {
       this.loadedScenes.push(scene);
     });
   }
+
+  public onResized(p5: CustomP5) {
+    this.loadedScenes.reverse().forEach((s) => {
+      s.onResized(p5);
+    });
+  }
 }

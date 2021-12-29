@@ -12,7 +12,10 @@ export default function noiseaction(p: CustomP5) {
   };
 
   p.draw = () => {
-    p.resizeCanvas(window.innerWidth, window.innerHeight);
+    if (window.innerWidth != p.width || window.innerHeight != p.height) {
+      p.resizeCanvas(window.innerWidth, window.innerHeight);
+      SceneManager.getInstance().onResized(p);
+    }
 
     SceneManager.getInstance().update(p);
     SceneManager.getInstance().render(p);

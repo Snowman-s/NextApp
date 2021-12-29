@@ -4,4 +4,6 @@ export default interface Scene {
   init(p5: CustomP5): void;
   update(p5: CustomP5): void;
   render(p5: CustomP5): void;
+
+  onResized(p5: CustomP5): void;
 }

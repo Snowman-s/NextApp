@@ -4,6 +4,8 @@ import P5Button from "../../p5Components/P5Button";
 import P5Component from "../../p5Components/P5Component";
 import P5Typography from "../../p5Components/P5Typography";
 import IScene from "./IScene";
+import JumpScene from "./JumpScene";
+import SceneManager from "./SceneManager";
 
 export default class TitleScene implements IScene {
   private title: P5Typography;
@@ -47,7 +49,7 @@ export default class TitleScene implements IScene {
     );
     this.startButton.setTextColor(255);
     this.startButton.setOnClick(() => {
-      console.log("AAAA");
+      SceneManager.getInstance().reserveNextScene(new JumpScene());
     });
 
     this.noise = new NoiseEffect();

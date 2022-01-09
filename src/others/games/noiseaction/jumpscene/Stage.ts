@@ -125,4 +125,8 @@ export default class Stage {
   getAllCollision(): IRectCollision[] {
     return [...this.steps];
   }
+
+  isGameover() {
+    return this.player.getPosition().y > Stage.stageSize;
+  }
 }

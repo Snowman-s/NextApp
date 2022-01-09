@@ -1,4 +1,5 @@
 import { CustomP5 } from "src/others/CustomP5";
+import Scene from "./IScene";
 import IScene from "./IScene";
 
 export default class SceneManager {
@@ -13,7 +14,7 @@ export default class SceneManager {
   private readonly loadedScenes: IScene[] = [];
 
   public update(p5: CustomP5) {
-    this.loadedScenes.reverse().forEach((s) => {
+    this.loadedScenes.forEach((s) => {
       s.update(p5);
     });
 
@@ -27,7 +28,7 @@ export default class SceneManager {
   public render(p5: CustomP5) {
     p5.background(0);
 
-    this.loadedScenes.reverse().forEach((s) => {
+    this.loadedScenes.forEach((s) => {
       p5.push();
       s.render(p5);
       p5.pop();
@@ -52,5 +53,9 @@ export default class SceneManager {
     this.loadedScenes.reverse().forEach((s) => {
       s.onResized(p5);
     });
+  }
+
+  public isTopScene(scene: Scene) {
+    return this.loadedScenes[this.loadedScenes.length - 1] === scene;
   }
 }

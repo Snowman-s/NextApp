@@ -1,6 +1,8 @@
 import { CustomP5 } from "src/others/CustomP5";
 import Stage from "../jumpscene/Stage";
 import IScene from "./IScene";
+import ResultScene from "./ResultScene";
+import SceneManager from "./SceneManager";
 
 export default class JumpScene implements IScene {
   leftSideX = 0;
@@ -14,6 +16,12 @@ export default class JumpScene implements IScene {
 
   update(p5: CustomP5): void {
     Stage.getInstance().update(p5);
+
+    if (Stage.getInstance().isGameover()) {
+      if (SceneManager.getInstance().isTopScene(this)) {
+        SceneManager.getInstance().reserveNextScene(new ResultScene(), false);
+      }
+    }
   }
 
   render(p5: CustomP5): void {

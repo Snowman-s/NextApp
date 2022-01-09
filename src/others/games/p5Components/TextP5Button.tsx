@@ -1,7 +1,17 @@
 import { CustomP5 } from "../../CustomP5";
+import AbstractP5Button from "./AbstractP5Button";
 import P5Component from "./P5Component";
 
-export default class P5Button implements P5Component {
+export default class TextP5Button extends AbstractP5Button {
+  protected isInBounds(x: number, y: number) {
+    return (
+      this.x < x &&
+      x < this.x + this.width &&
+      this.y < y &&
+      y < this.y + this.height
+    );
+  }
+
   private x = 0;
   private y = 0;
   private width = 0;
@@ -10,10 +20,6 @@ export default class P5Button implements P5Component {
   private fillColor: any = null;
   private strokeColor: any = null;
   private textColor: any = null;
-
-  private pressed: boolean = false;
-
-  private onClick = () => {};
 
   setGeometry(x: number, y: number, width: number, height: number) {
     this.x = x;
@@ -36,42 +42,6 @@ export default class P5Button implements P5Component {
 
   setText(text: string) {
     this.text = text;
-  }
-
-  setOnClick(onClick: () => void) {
-    this.onClick = onClick;
-  }
-
-  update(p: CustomP5) {
-    if (p.mouseIsPressed) {
-      const mouseX = p.mouseX;
-      const mouseY = p.mouseY;
-
-      if (
-        this.x < mouseX &&
-        mouseX < this.x + this.width &&
-        this.y < mouseY &&
-        mouseY < this.y + this.height
-      ) {
-        this.pressed = true;
-      }
-    } else {
-      if (this.pressed) {
-        const mouseX = p.mouseX;
-        const mouseY = p.mouseY;
-
-        if (
-          this.x < mouseX &&
-          mouseX < this.x + this.width &&
-          this.y < mouseY &&
-          mouseY < this.y + this.height
-        ) {
-          this.onClick();
-        }
-      }
-
-      this.pressed = false;
-    }
   }
 
   draw(p: CustomP5) {

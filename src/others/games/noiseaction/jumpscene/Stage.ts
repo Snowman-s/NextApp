@@ -1,6 +1,7 @@
 import p5 from "p5";
 import { CustomP5 } from "src/others/CustomP5";
 import IRectCollision from "./IRectCollision";
+import Light from "./Light";
 import Player from "./Player";
 import Step from "./Step";
 
@@ -20,8 +21,16 @@ export default class Stage {
 
   private player: Player;
   private steps: Step[] = [];
+  private lights: Light[] = [];
+
+  /**
+   * フィールドの"暗さ"。0-1の範囲で、1になるとゲームオーバー。
+   */
+  private darkness: number;
+  private darkenSpeed: number;
 
   private lastStepCreateY: number;
+  private lastLightCreateY: number;
 
   init(p5: CustomP5) {
     const stageSize = Stage.stageSize;
@@ -38,19 +47,30 @@ export default class Stage {
 
     this.steps.splice(0);
     this.steps.push(new Step(stageSize / 2, firstStepY, 0, stageSize, 9));
+    this.lights.splice(0);
 
     this.lastStepCreateY = firstStepY;
+    this.lastLightCreateY = firstStepY;
 
     this.createNewSteps(p5);
+    this.createNewLights(p5);
+
+    this.darkness = 0;
+    this.darkenSpeed = 0.1;
   }
 
   update(p5: CustomP5) {
-    this.player.update(p5);
+    if (!this.isGameover()) {
+      this.player.update(p5);
+    }
+
     this.steps.forEach((s) => {
       s.update(p5);
     });
 
     this.moveCamera(p5);
+
+    this.darkness += (p5.deltaTime / 1000) * this.darkenSpeed;
   }
 
   private moveCamera(p5: CustomP5) {
@@ -66,6 +86,9 @@ export default class Stage {
       this.steps.forEach((s) => {
         s.setPosition(s.getPosition().x, s.getPosition().y + deltaY);
       });
+      this.lights.forEach((s) => {
+        s.setPosition(s.getPosition().x, s.getPosition().y + deltaY);
+      });
 
       this.steps = this.steps.filter((step) => {
         let topY = step.getCenterY() - step.getHeight() / 2;
@@ -73,9 +96,18 @@ export default class Stage {
         return topY < Stage.stageSize;
       });
 
+      this.lights = this.lights.filter((light) => {
+        let topY = light.getPosition().y - light.getSize() / 2;
+
+        return topY < Stage.stageSize;
+      });
+
       //動いた場合の足場を補完する
       this.lastStepCreateY += deltaY;
+      this.lastLightCreateY += deltaY;
+
       this.createNewSteps(p5);
+      this.createNewLights(p5);
     }
   }
 
@@ -112,6 +144,21 @@ export default class Stage {
     });
   }
 
+  private createNewLights(p5: CustomP5) {
+    for (
+      let y = this.lastLightCreateY - Stage.stageSize / 5;
+      y > -Stage.stageSize;
+      y -= Stage.stageSize / 5
+    ) {
+      let x = p5.random(Stage.stageSize);
+      let lightSize = Stage.stageSize / 40 + p5.random(Stage.stageSize / 40);
+      let newLight = new Light(x, y, lightSize);
+      this.lights.push(newLight);
+
+      this.lastLightCreateY = y;
+    }
+  }
+
   /**
    * 各x, yが"0～500"の部分に描画します。
    */
@@ -120,13 +167,34 @@ export default class Stage {
     this.steps.forEach((s) => {
       s.render(p5);
     });
+    this.lights.forEach((s) => {
+      s.render(p5);
+    });
+
+    //仮
+    p5.push();
+    p5.background(0, this.darkness * 300);
+    p5.pop();
   }
 
   getAllCollision(): IRectCollision[] {
     return [...this.steps];
   }
 
+  getAllLights() {
+    return [...this.lights];
+  }
+
+  removeLight(light: Light) {
+    this.lights = this.lights.filter((it) => it != light);
+  }
+
+  decreaseDarkness() {
+    let _darkness = this.darkness - this.darkenSpeed * 5;
+    this.darkness = _darkness < 0 ? 0 : _darkness;
+  }
+
   isGameover() {
-    return this.player.getPosition().y > Stage.stageSize;
+    return this.player.getPosition().y > Stage.stageSize || this.darkness > 1;
   }
 }

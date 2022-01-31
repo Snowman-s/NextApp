@@ -1,6 +1,6 @@
 import p5 from "p5";
 import { CustomP5 } from "src/others/CustomP5";
-import Inputs from "./inputs";
+import Inputs from "./Inputs";
 import SceneManager from "./scenes/SceneManager";
 import TitleScene from "./scenes/TitleScene";
 

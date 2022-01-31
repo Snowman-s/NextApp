@@ -1,5 +1,5 @@
 import { CustomP5 } from "src/others/CustomP5";
-import Inputs from "../inputs";
+import Inputs from "../Inputs";
 import Stage from "./Stage";
 
 export default class Player {
@@ -79,6 +79,26 @@ export default class Player {
     });
 
     this.y = newY;
+
+    this.collectLight(p5);
+  }
+
+  private collectLight(p5: CustomP5) {
+    let lights = Stage.getInstance().getAllLights();
+
+    let intersectLight = lights.find((light) => {
+      return (
+        p5.abs(this.x - light.getPosition().x) * 2 <
+          light.getSize() + this.getSize() &&
+        p5.abs(this.y - light.getPosition().y) * 2 <
+          light.getSize() + this.getSize()
+      );
+    });
+
+    if (intersectLight == undefined) return;
+
+    Stage.getInstance().decreaseDarkness();
+    Stage.getInstance().removeLight(intersectLight);
   }
 
   private moveByKey(p5: CustomP5) {

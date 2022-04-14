@@ -1,6 +1,5 @@
 import { CustomP5 } from "src/others/CustomP5";
 import NoiseEffect from "../../p5Components/NoiseEffect";
-import P5Button from "../../p5Components/TextP5Button";
 import P5Component from "../../p5Components/P5Component";
 import P5Typography from "../../p5Components/P5Typography";
 import IScene from "./IScene";

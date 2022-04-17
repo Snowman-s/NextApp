@@ -32,3 +32,29 @@ export default function Home() {
     </div>
   );
 }
+
+export async function getStaticProps() {
+  return { props: {} };
+}
+
+export async function getStaticPaths() {
+  let keys = getWorksList().keys();
+
+  let paths = [];
+
+  if (getWorksList().size > 0) {
+    for (let keysItem = keys.next(); !keysItem.done; keysItem = keys.next()) {
+      var elm = keysItem.value;
+      paths.push({
+        params: {
+          work: elm,
+        },
+      });
+    }
+  }
+
+  return {
+    paths: paths,
+    fallback: false,
+  };
+}

@@ -56,12 +56,12 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
 
     if (gameOver()) fadeOut();
 
+    renderHowToPlay();
+
     if (keys.capture) {
       p.save("screen-shot.jpg");
       keys.capture = false;
     }
-
-    renderHowToPlay();
   };
 
   p.remainSeconds = () => {

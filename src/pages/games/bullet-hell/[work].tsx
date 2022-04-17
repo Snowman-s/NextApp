@@ -1,9 +1,10 @@
+import { Typography } from "@material-ui/core";
 import { useRouter } from "next/dist/client/router";
 import Head from "next/head";
 import { useState } from "react";
 import P5Canvas from "src/components/P5Canvas";
 import { BulletP5 } from "src/others/games/bullet-hell/BulletP5";
-import b1 from "src/others/games/bullet-hell/works/b1";
+import b1 from "src/others/games/bullet-hell/works/a";
 import getWorksList from "src/others/games/bullet-hell/works/list";
 
 export default function Home() {

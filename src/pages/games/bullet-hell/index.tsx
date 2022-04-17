@@ -29,13 +29,16 @@ export default function Home() {
 
   let keys = getWorksList().keys();
 
-  for (let elm of keys) {
-    sketches.push({
-      sketchName: elm,
-      sketchURL: "/games/bullet-hell/" + elm + "/",
-      sketchImage:
-        process.env.NEXT_PUBLIC_ASSET_PREFIX + "/sketchimage/lifegame.png",
-    });
+  if (getWorksList().size > 0) {
+    for (let keysItem = keys.next(); !keysItem.done; keysItem = keys.next()) {
+      var elm = keysItem.value;
+      sketches.push({
+        sketchName: elm,
+        sketchURL: "/games/bullet-hell/" + elm + "/",
+        sketchImage:
+          process.env.NEXT_PUBLIC_ASSET_PREFIX + "/sketchimage/lifegame.png",
+      });
+    }
   }
 
   return (

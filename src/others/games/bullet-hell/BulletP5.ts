@@ -16,6 +16,8 @@ export class BulletP5 extends p5 {
   shoot?: () => void;
   bullets?: Bullet[];
   remainSeconds?: () => number;
+  spentSeconds?: () => number;
+  player?: { x: number; y: number };
   nWay?: (
     x: number,
     y: number,

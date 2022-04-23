@@ -3,7 +3,6 @@ import { Bullet, BulletP5 } from "./BulletP5";
 
 export default function setup(p: BulletP5, limitSeconds = 10) {
   let canvas: p5.Renderer;
-  let player = { x: 0, y: 0 };
 
   const speed = 5;
   const playerSize = 9;
@@ -68,6 +67,10 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     return p.int(remainTime / 60);
   };
 
+  p.spentSeconds = () => {
+    return p.int((maxTime - remainTime) / 60);
+  };
+
   //ダミー
   p.shoot = () => {
     if (p.frameCount % 30 != 0) return;
@@ -84,7 +87,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
 
   function init() {
     p.bullets = [];
-    player = { x: 200, y: 500 };
+    p.player = { x: 200, y: 500 };
     p.frameCount = 0;
 
     keys = {
@@ -136,13 +139,13 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     vec.x *= actuallySpeed;
     vec.y *= actuallySpeed;
 
-    player.x += vec.x;
-    player.y += vec.y;
+    p.player.x += vec.x;
+    p.player.y += vec.y;
 
-    player.x = p.max(player.x, playerSize / 2);
-    player.y = p.max(player.y, playerSize / 2);
-    player.x = p.min(player.x, stgWidth - playerSize / 2);
-    player.y = p.min(player.y, p.height - playerSize / 2);
+    p.player.x = p.max(p.player.x, playerSize / 2);
+    p.player.y = p.max(p.player.y, playerSize / 2);
+    p.player.x = p.min(p.player.x, stgWidth - playerSize / 2);
+    p.player.y = p.min(p.player.y, p.height - playerSize / 2);
   }
 
   function moveBullets() {
@@ -161,7 +164,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     if (isDashActive()) p.fill(255, 255, 0);
     else p.fill(0, 255, 255);
 
-    p.square(player.x, player.y, playerSize);
+    p.square(p.player.x, p.player.y, playerSize);
     p.pop();
   }
 
@@ -189,7 +192,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     if (isDashActive()) return;
 
     p.bullets.forEach((b) => {
-      if (p.dist(player.x, player.y, b.x, b.y) * 2 < playerSize + b.size) {
+      if (p.dist(p.player.x, p.player.y, b.x, b.y) * 2 < playerSize + b.size) {
         death = true;
         frameByDeath = 0;
       }

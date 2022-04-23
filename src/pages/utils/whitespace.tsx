@@ -1,16 +1,30 @@
 import Head from "next/head";
-import { IconButton, TextField, Typography, Grid } from "@material-ui/core";
+import {
+  IconButton,
+  TextField,
+  Typography,
+  Grid,
+  Button,
+  Icon,
+} from "@material-ui/core";
 import React from "react";
 
 import Editor from "react-simple-code-editor";
 import dynamic from "next/dynamic";
 
 import Prism from "prismjs";
+import PlayCircleIcon from "@material-ui/icons/PlayCircleFilled";
+import {
+  WhitespaceParseOutput,
+  WhitespaceParser,
+} from "src/others/whitespace/Parser";
 
 export default function Home() {
   const [code, setCode] = React.useState(
-    `カラデシュ!\nすごい!\n本当にすごいんだ!`
+    "カラデシュ!\nすごい!\n本当にすごいんだ!"
   );
+
+  const [parsed, setParsed] = React.useState<WhitespaceParseOutput[]>([]);
 
   const highlightCss = `
       .token.ws {
@@ -28,6 +42,16 @@ export default function Home() {
     ws: /カラデシュ\!/,
     tab: /すごい\!/,
     lf: /本当にすごいんだ\!/,
+  };
+
+  const onExec = () => {
+    setParsed(
+      new WhitespaceParser().parse(code, [
+        "カラデシュ!",
+        "すごい!",
+        "本当にすごいんだ!",
+      ])
+    );
   };
 
   return (
@@ -56,6 +80,18 @@ export default function Home() {
               fontWeight: "bold",
             }}
           />
+        </Grid>
+        <Grid item>
+          <IconButton onClick={onExec}>
+            <PlayCircleIcon />
+          </IconButton>
+        </Grid>
+        <Grid item>
+          {parsed.map((p, index) => (
+            <Typography key={index}>
+              {p.error ? "Error:" + p.where : p.where}
+            </Typography>
+          ))}
         </Grid>
       </Grid>
     </div>

@@ -1,8 +1,112 @@
-export type WhitespaceParseOutput = { error: boolean; where: string };
+export type WhitespaceLexicalOutput = { error: boolean; where: string };
+type TranscriptedToken = "ws" | "tab" | "lf";
+export type AnalysisCommandResult<C extends Commands> =
+  C extends ParamNumberCommand
+    ? {
+        command: C;
+        param: number;
+      }
+    : C extends ParamLabelCommand
+    ? {
+        command: C;
+        param: string;
+      }
+    : {
+        command: C;
+      };
+export type AnalysisResult = NonErrorResult | ParseError[] | SyntaxErrors;
+export type NonErrorResult = {
+  commands: AnalysisCommandResult<Commands>[];
+  labels: Array<{ commandIndex: number; label: string }>;
+};
+export type ParseError = { msg: string; tokenIndex: number };
+export type SyntaxError = { msg: string; commandIndex: number };
+export type SyntaxErrors = {
+  error: SyntaxError[];
+  out: AnalysisCommandResult<Commands>[];
+};
+type ErrorOr<T> = ErrorMessage | T;
+
+const Commands = {
+  Push: "Push",
+  Dup: "Dup",
+  Copy: "Copy",
+  Swap: "Swap",
+  Discard: "Discard",
+  Slide: "Slide",
+  Add: "Add",
+  Subtract: "Subtract",
+  Multiply: "Multiply",
+  Divide: "Divide",
+  Modulo: "Modulo",
+  Store: "Store",
+  Retrieve: "Retrieve",
+  Label: "Label",
+  Call: "Call",
+  Jump: "Jump",
+  JumpIfZero: "JumpIfZero",
+  JumpIfNegative: "JumpIfNegative",
+  Return: "Return",
+  End: "End",
+  OutputCharacter: "OutputCharacter",
+  OutputNumber: "OutputNumber",
+  ReadCharacter: "ReadCharacter",
+  ReadNumber: "ReadNumber",
+} as const;
+type Commands = typeof Commands[keyof typeof Commands];
+const ParamNumberCommand = [
+  Commands.Push,
+  Commands.Copy,
+  Commands.Slide,
+] as const;
+function isParamNumberCommand(c: Commands): c is ParamNumberCommand {
+  return ParamNumberCommand.find((cmd) => cmd == c) != undefined;
+}
+type ParamNumberCommand = typeof ParamNumberCommand[number];
+const ParamLabelCommand = [
+  Commands.Label,
+  Commands.Call,
+  Commands.Jump,
+  Commands.JumpIfNegative,
+  Commands.JumpIfZero,
+] as const;
+function isParamLabelCommand(c: Commands): c is ParamLabelCommand {
+  return ParamLabelCommand.find((cmd) => cmd == c) != undefined;
+}
+type ParamLabelCommand = typeof ParamLabelCommand[number];
 
 export class WhitespaceParser {
-  parse(code: string, tokens: string[]) {
-    let output: WhitespaceParseOutput[] = [];
+  parse(code: string, ws: string, tab: string, lf: string): AnalysisResult {
+    let lexicalOutput = this.lexical(code, [ws, tab, lf]);
+
+    /*トークンに当てはまらない文字列があるか？
+      エラーにindexが必要な為、敢えてmapを先に用いる。
+    */
+    const errors: ParseError[] = lexicalOutput
+      .map((token, index) => {
+        return {
+          error: {
+            msg: `"${token.where}" is invalid token`,
+            tokenIndex: index,
+          },
+          token: token,
+        };
+      })
+      .filter((info) => info.token.error)
+      .map((info) => info.error);
+    if (errors.length > 0) return errors;
+
+    //エラーが無いので安全にws, tab, lfにコンバートできる
+    const rawTokens = lexicalOutput.map((tmp) => tmp.where);
+    let tokens = this.transcript(rawTokens, ws, tab, lf);
+
+    //で、改めて構文解析
+    let syntacticOutput = this.syntactic(tokens);
+    return syntacticOutput;
+  }
+
+  private lexical(code: string, tokens: string[]) {
+    let output: WhitespaceLexicalOutput[] = [];
     let cBuffer = "";
     let errorBuffer = "";
 
@@ -46,4 +150,301 @@ export class WhitespaceParser {
 
     return output;
   }
+
+  private transcript(
+    rawTokens: string[],
+    ws: string,
+    tab: string,
+    lf: string
+  ): TranscriptedToken[] {
+    const tokens = rawTokens.map((token) => {
+      switch (token) {
+        case ws:
+          return "ws";
+        case tab:
+          return "tab";
+        case lf:
+          return "lf";
+        default:
+          //この中で使用する限り起こりえない
+          throw new Error();
+      }
+    });
+
+    return tokens;
+  }
+
+  private syntactic(
+    tokens: TranscriptedToken[]
+  ): AnalysisResult | SyntaxErrors {
+    let spentTokenAmount = 0;
+    let read = () => {
+      const tmp = tokens.shift();
+      spentTokenAmount++;
+      if (tmp == undefined) throw new UnexpectedEOFError();
+      return tmp;
+    };
+    let output: AnalysisCommandResult<Commands>[] = [];
+    let labels: { label: string; commandIndex: number }[] = [];
+    let errorOutput: SyntaxError[] = [];
+    try {
+      while (tokens.length > 0) {
+        const imp = this.findIMP(read);
+        let command:
+          | AnalysisCommandResult<Commands>
+          | ErrorMessage
+          | { label: string };
+        switch (imp) {
+          case "Stack":
+            command = this.findStackCommand(read);
+            break;
+          case "Arith":
+            command = this.findArithCommand(read);
+            break;
+          case "Flow":
+            command = this.findFlowCommand(read);
+            break;
+          case "Heap":
+            command = this.findHeapCommand(read);
+            break;
+          case "IO":
+            command = this.findIOCommand(read);
+            break;
+          default:
+            const _n: never = imp;
+            break;
+        }
+        if ("msg" in command) {
+          output.push(undefined);
+          errorOutput.push(
+            Object.assign(command, { commandIndex: output.length - 1 })
+          );
+        } else if ("label" in command) {
+          labels.push({ label: command.label, commandIndex: output.length });
+        } else {
+          output.push(command);
+        }
+      }
+    } catch (e) {
+      if (e instanceof UnexpectedEOFError) {
+        return {
+          error: [{ msg: "Unexpected EOF", commandIndex: output.length }],
+          out: output,
+        };
+      }
+    }
+
+    if (errorOutput.length > 0) {
+      return {
+        error: errorOutput,
+        out: output,
+      };
+    }
+    return { commands: output, labels: labels };
+  }
+
+  private findIMP(sup: () => TranscriptedToken) {
+    let first = sup();
+
+    if (first == "ws") {
+      return "Stack";
+    } else if (first == "tab") {
+      let second = sup();
+      if (second == "ws") {
+        return "Arith";
+      } else if (second == "tab") {
+        return "Heap";
+      } else {
+        return "IO";
+      }
+    } else {
+      return "Flow";
+    }
+  }
+
+  private findStackCommand(
+    sup: () => TranscriptedToken
+  ): ErrorOr<AnalysisCommandResult<Commands>> {
+    return this.findCommandAndParam(sup, [
+      { t: ["ws"], cmd: Commands.Push },
+      { t: ["lf", "ws"], cmd: Commands.Dup },
+      { t: ["tab", "ws"], cmd: Commands.Copy },
+      { t: ["lf", "tab"], cmd: Commands.Swap },
+      { t: ["lf", "lf"], cmd: Commands.Discard },
+      { t: ["tab", "lf"], cmd: Commands.Slide },
+    ]);
+  }
+
+  private findArithCommand(
+    sup: () => TranscriptedToken
+  ): ErrorOr<AnalysisCommandResult<Commands>> {
+    return this.findCommandAndParam(sup, [
+      { t: ["ws", "ws"], cmd: Commands.Add },
+      { t: ["ws", "tab"], cmd: Commands.Subtract },
+      { t: ["ws", "lf"], cmd: Commands.Multiply },
+      { t: ["tab", "ws"], cmd: Commands.Divide },
+      { t: ["tab", "tab"], cmd: Commands.Modulo },
+    ]);
+  }
+
+  private findHeapCommand(
+    sup: () => TranscriptedToken
+  ): ErrorOr<AnalysisCommandResult<Commands>> {
+    return this.findCommandAndParam(sup, [
+      { t: ["ws"], cmd: Commands.Store },
+      { t: ["tab"], cmd: Commands.Retrieve },
+    ]);
+  }
+
+  private findFlowCommand(
+    sup: () => TranscriptedToken
+  ): ErrorOr<AnalysisCommandResult<Commands> | { label: string }> {
+    const cmdAndParam = this.findCommandAndParam(sup, [
+      { t: ["ws", "ws"], cmd: Commands.Label },
+      { t: ["ws", "tab"], cmd: Commands.Call },
+      { t: ["ws", "lf"], cmd: Commands.Jump },
+      { t: ["tab", "ws"], cmd: Commands.JumpIfZero },
+      { t: ["tab", "tab"], cmd: Commands.JumpIfNegative },
+      { t: ["tab", "lf"], cmd: Commands.Return },
+      { t: ["lf", "lf"], cmd: Commands.End },
+    ]);
+
+    if ("msg" in cmdAndParam) return cmdAndParam;
+    if (cmdAndParam.command == Commands.Label)
+      return { label: cmdAndParam.param };
+    return cmdAndParam;
+  }
+
+  private findIOCommand(
+    sup: () => TranscriptedToken
+  ): ErrorOr<AnalysisCommandResult<Commands>> {
+    return this.findCommandAndParam(sup, [
+      { t: ["ws", "ws"], cmd: Commands.OutputCharacter },
+      { t: ["ws", "tab"], cmd: Commands.OutputNumber },
+      { t: ["tab", "ws"], cmd: Commands.ReadCharacter },
+      { t: ["tab", "tab"], cmd: Commands.ReadNumber },
+    ]);
+  }
+
+  private findCommandAndParam(
+    sup: () => TranscriptedToken,
+    map: { t: TranscriptedToken[]; cmd: Commands }[]
+  ): ErrorOr<AnalysisCommandResult<Commands>> {
+    const cmd = this.findCommand(sup, map);
+    if (cmd instanceof ErrorMessage) return cmd;
+    if (isParamNumberCommand(cmd)) {
+      const param = this.findNumber(sup);
+      if (param instanceof ErrorMessage) return param;
+      return { command: cmd, param: param };
+    } else if (isParamLabelCommand(cmd)) {
+      const param = this.findLabel(sup);
+      if (param instanceof ErrorMessage) return param;
+      return { command: cmd, param: param };
+    } else {
+      return { command: cmd };
+    }
+  }
+
+  private findCommand<T extends Commands>(
+    sup: () => TranscriptedToken,
+    map: { t: TranscriptedToken[]; cmd: T }[]
+  ): ErrorOr<Commands> {
+    let readTokens = [];
+    readTokens.push(sup());
+
+    //より読んでいったら存在するかもしれない
+    let maybeMatchFunc = () =>
+      map.find((tuple) => {
+        let token = tuple.t;
+        return readTokens.find((t, index) => token[index] != t) == undefined;
+      });
+    let maybeMatch = maybeMatchFunc();
+
+    //もう完全に一致したコマンドが存在する
+    let completelyMatchFunc = () =>
+      map.find((tuple) => {
+        let token = tuple.t;
+        return (
+          token.length == readTokens.length &&
+          token.find((token, index) => readTokens[index] != token) == undefined
+        );
+      });
+
+    let completelyMatch = completelyMatchFunc();
+
+    while (completelyMatch == undefined && maybeMatch != undefined) {
+      readTokens.push(sup());
+
+      maybeMatch = maybeMatchFunc();
+      completelyMatch = completelyMatchFunc();
+    }
+
+    if (completelyMatch == undefined) {
+      return error("There are no commands match to this pattern.");
+    }
+
+    return completelyMatch.cmd;
+  }
+
+  private findNumber(sup: () => TranscriptedToken): ErrorOr<number> {
+    let out = sup();
+    if (out == "lf") {
+      return error("Unexpected end of number");
+    }
+    let sign = out == "ws" ? +1 : -1;
+
+    out = sup();
+    if (out == "lf") {
+      return error("Unexpected end of number");
+    }
+
+    let bits: Array<number> = [];
+    bits.push(out == "ws" ? 0 : 1);
+
+    while ((out = sup()) != "lf") {
+      bits.push(out == "ws" ? 0 : 1);
+    }
+
+    return (
+      sign *
+      bits
+        .map((bit, index) => {
+          return bit << (bits.length - 1 - index);
+        })
+        .reduce((a, b) => a + b)
+    );
+  }
+
+  private findLabel(sup: () => TranscriptedToken): ErrorOr<string> {
+    let out = sup();
+    let label = "";
+    if (out == "lf") {
+      return error("Unexpected end of label");
+    }
+
+    label += out == "ws" ? "W" : out == "tab" ? "T" : "L";
+
+    while ((out = sup()) != "lf") {
+      label += out == "ws" ? "W" : out == "tab" ? "T" : "L";
+    }
+
+    return label;
+  }
+}
+
+class UnexpectedEOFError extends Error {
+  constructor() {
+    super();
+  }
+}
+
+class ErrorMessage {
+  msg: string;
+  constructor(msg: string) {
+    this.msg = msg;
+  }
+}
+
+function error(msg: string): ErrorMessage {
+  return new ErrorMessage(msg);
 }

@@ -252,12 +252,12 @@ export class WhitespaceParser {
     {
       output.forEach((o, index) => {
         if (o == undefined) return;
-        const hasLabel = (function (
+        const hasLabel = function (
           o: AnalysisCommandResult<Commands>
         ): o is AnalysisCommandResult<ParamLabelCommand> {
           return isParamLabelCommand(o.command);
-        })(o);
-        if (hasLabel) {
+        };
+        if (hasLabel(o)) {
           if (labels.map((l) => l.label).findIndex((l) => l == o.param) == -1) {
             errorOutput.push({
               msg: `Label "${o.param}" is not defined`,

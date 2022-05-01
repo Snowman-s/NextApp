@@ -12,6 +12,7 @@ import {
   SyntaxErrors,
   WhitespaceParser,
 } from "src/others/whitespace/Parser";
+import WhitespaceExecutor from "src/others/whitespace/Executor";
 
 export default function Home() {
   const [code, setCode] = React.useState(
@@ -20,6 +21,7 @@ export default function Home() {
 
   const [parsed, setParsed] = React.useState<AnalysisResult>();
   const [parsedResultStr, setParsedResultStr] = React.useState<string>();
+  const [execResultStr, setExecResultStr] = React.useState<string>();
 
   const highlightCss = `
       .token.ws {
@@ -50,8 +52,18 @@ export default function Home() {
 
     setParsed(result);
 
-    if (parsed == undefined) setParsedResultStr("");
+    if (result == undefined) setParsedResultStr("");
     else setParsedResultStr(parseResultAsString(result));
+  };
+
+  const onExec = () => {
+    if (parsed == undefined || Array.isArray(parsed) || "error" in parsed)
+      return;
+    let executor = new WhitespaceExecutor();
+    let output = "";
+    executor.exec(parsed, (str) => (output += str));
+
+    setExecResultStr(output);
   };
 
   return (
@@ -91,6 +103,14 @@ export default function Home() {
         <Grid item>
           <Paper style={{ whiteSpace: "pre" }}>{parsedResultStr}</Paper>
         </Grid>
+        <Grid item>
+          <IconButton onClick={onExec}>
+            <PlayCircleIcon />
+          </IconButton>
+        </Grid>
+        <Grid item>
+          <Paper style={{ whiteSpace: "pre" }}>{execResultStr}</Paper>
+        </Grid>
       </Grid>
     </div>
   );
@@ -100,19 +120,14 @@ function parseResultAsString(
   result: AnalysisResult | ParseError[] | SyntaxErrors
 ): string {
   if ("commands" in result) {
-    let str = "";
+    let str = result.commands
+      .map((cmd) => {
+        return `  ${cmd.command} ${
+          "param" in cmd ? cmd.param.toString() : ""
+        }\n`;
+      })
+      .reduce((a, b) => a + b, "");
 
-    let strs = result.commands.map((cmd) => {
-      return `  ${cmd.command} ${"param" in cmd ? cmd.param.toString() : ""}\n`;
-    });
-
-    result.labels
-      //後ろからやることでインデックスのずれを防ぐ
-      .sort((a, b) => b.commandIndex - a.commandIndex)
-      .forEach((label) => {
-        strs.splice(label.commandIndex, 0, label.label + ":\n");
-      });
-    str += strs.reduce((a, b) => a + b, "");
     return str;
   } else if ("error" in result) {
     let str = result.error

@@ -17,7 +17,7 @@ export type AnalysisCommandResult<C extends Commands> =
 export type AnalysisResult = NonErrorResult | ParseError[] | SyntaxErrors;
 export type NonErrorResult = {
   commands: AnalysisCommandResult<Commands>[];
-  labels: Array<{ commandIndex: number; label: string }>;
+  labels: { commandIndex: number; label: string }[];
 };
 export type ParseError = { msg: string; tokenIndex: number };
 export type SyntaxError = { msg: string; commandIndex: number };
@@ -177,10 +177,8 @@ export class WhitespaceParser {
   private syntactic(
     tokens: TranscriptedToken[]
   ): AnalysisResult | SyntaxErrors {
-    let spentTokenAmount = 0;
     let read = () => {
       const tmp = tokens.shift();
-      spentTokenAmount++;
       if (tmp == undefined) throw new UnexpectedEOFError();
       return tmp;
     };
@@ -190,10 +188,7 @@ export class WhitespaceParser {
     try {
       while (tokens.length > 0) {
         const imp = this.findIMP(read);
-        let command:
-          | AnalysisCommandResult<Commands>
-          | ErrorMessage
-          | { label: string };
+        let command: AnalysisCommandResult<Commands> | ErrorMessage;
         switch (imp) {
           case "Stack":
             command = this.findStackCommand(read);
@@ -219,10 +214,14 @@ export class WhitespaceParser {
           errorOutput.push(
             Object.assign(command, { commandIndex: output.length - 1 })
           );
-        } else if ("label" in command) {
-          labels.push({ label: command.label, commandIndex: output.length });
         } else {
           output.push(command);
+          if (command.command == "Label") {
+            labels.push({
+              label: command.param,
+              commandIndex: output.length - 1,
+            });
+          }
         }
       }
     } catch (e) {
@@ -234,9 +233,44 @@ export class WhitespaceParser {
       }
     }
 
+    //同じラベルをつけない
+    {
+      let tmp = [];
+      labels.forEach((l, index) => {
+        if (tmp.indexOf(l.label) != -1) {
+          errorOutput.push({
+            msg: `Label "${l}" is already exsist.`,
+            commandIndex: index,
+          });
+        } else {
+          tmp.push(l.label);
+        }
+      });
+    }
+
+    //ラベルがあるかチェック
+    {
+      output.forEach((o, index) => {
+        if (o == undefined) return;
+        const hasLabel = (function (
+          o: AnalysisCommandResult<Commands>
+        ): o is AnalysisCommandResult<ParamLabelCommand> {
+          return isParamLabelCommand(o.command);
+        })(o);
+        if (hasLabel) {
+          if (labels.map((l) => l.label).findIndex((l) => l == o.param) == -1) {
+            errorOutput.push({
+              msg: `Label "${o.param}" is not defined`,
+              commandIndex: index,
+            });
+          }
+        }
+      });
+    }
+
     if (errorOutput.length > 0) {
       return {
-        error: errorOutput,
+        error: errorOutput.sort((a, b) => a.commandIndex - b.commandIndex),
         out: output,
       };
     }
@@ -298,7 +332,7 @@ export class WhitespaceParser {
 
   private findFlowCommand(
     sup: () => TranscriptedToken
-  ): ErrorOr<AnalysisCommandResult<Commands> | { label: string }> {
+  ): ErrorOr<AnalysisCommandResult<Commands>> {
     const cmdAndParam = this.findCommandAndParam(sup, [
       { t: ["ws", "ws"], cmd: Commands.Label },
       { t: ["ws", "tab"], cmd: Commands.Call },
@@ -309,9 +343,6 @@ export class WhitespaceParser {
       { t: ["lf", "lf"], cmd: Commands.End },
     ]);
 
-    if ("msg" in cmdAndParam) return cmdAndParam;
-    if (cmdAndParam.command == Commands.Label)
-      return { label: cmdAndParam.param };
     return cmdAndParam;
   }
 

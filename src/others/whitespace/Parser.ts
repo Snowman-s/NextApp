@@ -1,4 +1,7 @@
-export type WhitespaceLexicalOutput = { error: boolean; where: string };
+export type WhitespaceLexicalOutput = {
+  error: boolean;
+  where: string;
+};
 type TranscriptedToken = "ws" | "tab" | "lf";
 export type AnalysisCommandResult<C extends Commands> =
   C extends ParamNumberCommand
@@ -76,25 +79,37 @@ function isParamLabelCommand(c: Commands): c is ParamLabelCommand {
 type ParamLabelCommand = typeof ParamLabelCommand[number];
 
 export class WhitespaceParser {
-  parse(code: string, ws: string, tab: string, lf: string): AnalysisResult {
-    let lexicalOutput = this.lexical(code, [ws, tab, lf]);
+  parse(
+    code: string,
+    ws: string,
+    tab: string,
+    lf: string,
+    ignoreUnknownToken = false
+  ): AnalysisResult {
+    let lexicalOutput: WhitespaceLexicalOutput[] = this.lexical(
+      code,
+      [ws, tab, lf],
+      ignoreUnknownToken
+    );
 
-    /*トークンに当てはまらない文字列があるか？
-      エラーにindexが必要な為、敢えてmapを先に用いる。
-    */
-    const errors: ParseError[] = lexicalOutput
-      .map((token, index) => {
-        return {
-          error: {
-            msg: `"${token.where}" is invalid token`,
-            tokenIndex: index,
-          },
-          token: token,
-        };
-      })
-      .filter((info) => info.token.error)
-      .map((info) => info.error);
-    if (errors.length > 0) return errors;
+    if (!ignoreUnknownToken) {
+      /*トークンに当てはまらない文字列があるか？
+          エラーにindexが必要な為、敢えてmapを先に用いる。
+        */
+      const errors: ParseError[] = lexicalOutput
+        .map((token, index) => {
+          return {
+            error: {
+              msg: `"${token.where}" is invalid token`,
+              tokenIndex: index,
+            },
+            token: token,
+          };
+        })
+        .filter((info) => info.token.error)
+        .map((info) => info.error);
+      if (errors.length > 0) return errors;
+    }
 
     //エラーが無いので安全にws, tab, lfにコンバートできる
     const rawTokens = lexicalOutput.map((tmp) => tmp.where);
@@ -105,13 +120,23 @@ export class WhitespaceParser {
     return syntacticOutput;
   }
 
-  private lexical(code: string, tokens: string[]) {
+  private lexical(code: string, tokens: string[], ignoreUnknownToken = false) {
     let output: WhitespaceLexicalOutput[] = [];
     let cBuffer = "";
     let errorBuffer = "";
 
+    let pushOutput = (value: WhitespaceLexicalOutput) => {
+      if (ignoreUnknownToken && value.error) return;
+      output.push(value);
+    };
+
     loop: for (let character of code) {
-      if (character.match(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g)) continue;
+      if (character.match(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g)) {
+        errorBuffer += cBuffer;
+        if (errorBuffer != "") pushOutput({ error: true, where: errorBuffer });
+        errorBuffer = cBuffer = "";
+        continue;
+      }
       let beforeBuffer = cBuffer;
       cBuffer += character;
 
@@ -119,9 +144,9 @@ export class WhitespaceParser {
         if (token == cBuffer) {
           //トークンが一致
           if (errorBuffer != "")
-            output.push({ error: true, where: errorBuffer });
+            pushOutput({ error: true, where: errorBuffer });
           errorBuffer = "";
-          output.push({ error: false, where: cBuffer });
+          pushOutput({ error: false, where: cBuffer });
           cBuffer = "";
           continue loop;
         } else if (cBuffer == token.slice(0, cBuffer.length)) {
@@ -146,7 +171,7 @@ export class WhitespaceParser {
 
     errorBuffer += cBuffer;
 
-    if (errorBuffer != "") output.push({ error: true, where: errorBuffer });
+    if (errorBuffer != "") pushOutput({ error: true, where: errorBuffer });
 
     return output;
   }
@@ -236,11 +261,11 @@ export class WhitespaceParser {
     //同じラベルをつけない
     {
       let tmp = [];
-      labels.forEach((l, index) => {
+      labels.forEach((l) => {
         if (tmp.indexOf(l.label) != -1) {
           errorOutput.push({
-            msg: `Label "${l}" is already exsist.`,
-            commandIndex: index,
+            msg: `Label "${l.label}" is already exsist.`,
+            commandIndex: l.commandIndex,
           });
         } else {
           tmp.push(l.label);

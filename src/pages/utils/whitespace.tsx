@@ -47,7 +47,8 @@ export default function Home() {
       code,
       "すごい!",
       "カラデシュ!",
-      "本当にすごいんだ!"
+      "本当にすごいんだ!",
+      true
     );
 
     setParsed(result);
@@ -57,8 +58,10 @@ export default function Home() {
   };
 
   const onExec = () => {
-    if (parsed == undefined || Array.isArray(parsed) || "error" in parsed)
+    if (parsed == undefined || Array.isArray(parsed) || "error" in parsed) {
+      setExecResultStr("");
       return;
+    }
     let executor = new WhitespaceExecutor();
     let output = "";
     executor.exec(parsed, (str) => (output += str));

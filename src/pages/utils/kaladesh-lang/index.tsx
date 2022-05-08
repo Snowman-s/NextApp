@@ -126,7 +126,7 @@ export default function Home() {
             <PlayCircleIcon />
           </IconButton>
         </Grid>
-        {parsedResultStr == undefined || parsedResultStr == "" ? (
+        {parsedResultStr == undefined ? (
           <></>
         ) : (
           <>
@@ -142,7 +142,7 @@ export default function Home() {
                 <PlayCircleIcon />
               </IconButton>
             </Grid>
-            {execResultStr == undefined || execResultStr == "" ? (
+            {execResultStr == undefined ? (
               <></>
             ) : (
               <>

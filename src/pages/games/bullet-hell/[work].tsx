@@ -16,12 +16,13 @@ export default function Home() {
     workStr = workStr[0];
   }
 
-  var sketch = getWorksList().get(workStr);
+  var item = getWorksList().get(workStr);
+  var sketch = item.work;
 
   return (
     <div>
       <Head>
-        <title>弾幕ページ</title>
+        <title>弾幕 - {item.name}</title>
         <meta name="description" content="弾幕" />
         <link
           rel="icon"

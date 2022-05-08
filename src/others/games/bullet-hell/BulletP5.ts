@@ -35,6 +35,7 @@ export class BulletP5 extends p5 {
     speed: number,
     N: number,
     firstAngle: number,
+    startRadius?: number,
     addToBulletsList?: boolean
   ) => Bullet[];
   freq?: (spaceFrame: number, func: () => void) => void;

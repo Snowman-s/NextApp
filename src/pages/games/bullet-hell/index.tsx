@@ -31,10 +31,10 @@ export default function Home() {
 
   if (getWorksList().size > 0) {
     for (let keysItem = keys.next(); !keysItem.done; keysItem = keys.next()) {
-      var elm = keysItem.value;
+      var elm = getWorksList().get(keysItem.value);
       sketches.push({
-        sketchName: elm,
-        sketchURL: "/games/bullet-hell/" + elm + "/",
+        sketchName: elm.name,
+        sketchURL: "/games/bullet-hell/" + keysItem.value + "/",
         sketchImage:
           process.env.NEXT_PUBLIC_ASSET_PREFIX + "/sketchimage/lifegame.png",
       });

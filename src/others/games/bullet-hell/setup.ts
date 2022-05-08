@@ -189,6 +189,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
   }
 
   function hitCheck() {
+    if (death) return;
     if (isDashActive()) return;
 
     p.bullets.forEach((b) => {
@@ -344,23 +345,26 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
   };
 
   p.allWay = (
-    x: number,
-    y: number,
-    size: number,
-    speed: number,
-    N: number,
-    firstAngle: number,
+    x,
+    y,
+    size,
+    speed,
+    N,
+    firstAngle,
+    startRadius = 0,
     addToBulletsList = true
   ) => {
     var bullets: Bullet[] = [];
     for (let i = 0; i < N; i++) {
       var angle = firstAngle + i * (p.TAU / N);
+      var c = p.cos(angle);
+      var s = p.sin(angle);
       bullets.push({
-        x: x,
-        y: y,
+        x: x + startRadius * c,
+        y: y + startRadius * s,
         size: size,
-        speedX: speed * p.cos(angle),
-        speedY: speed * p.sin(angle),
+        speedX: speed * c,
+        speedY: speed * s,
       });
     }
 

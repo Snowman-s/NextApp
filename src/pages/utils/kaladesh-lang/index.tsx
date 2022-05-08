@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { Paper, IconButton, Grid } from "@material-ui/core";
+import { Paper, IconButton, Grid, Link, Button } from "@material-ui/core";
 import React from "react";
 
 import Editor from "react-simple-code-editor";
@@ -35,7 +35,7 @@ export default function Home() {
       }
     `;
 
-  Prism.languages["whitespace"] = {
+  Prism.languages["kaladesh"] = {
     ws: /すごい\!/,
     tab: /カラデシュ\!/,
     lf: /本当にすごいんだ\!/,
@@ -72,14 +72,28 @@ export default function Home() {
   return (
     <div>
       <Head>
-        <title>わいと すぺーす えぐぜきゅーたー</title>
-        <meta name="description" content="WhiteSpaceすごい!本当にすごいんだ!" />
+        <title>カラデシュ言語エディター</title>
+        <meta
+          name="description"
+          content="カラデシュ言語すごい!本当にすごいんだ!"
+        />
         <link
           rel="icon"
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
         <style>{highlightCss}</style>
       </Head>
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item>
+          <h1>カラデシュ言語エディター</h1>
+        </Grid>
+        <Grid item>
+          <Link href="./help">
+            <Button variant="contained">Help (内容は保存されません!)</Button>
+          </Link>
+        </Grid>
+      </Grid>
+      <hr />
       <Grid container>
         <Grid item>
           <Paper>
@@ -87,7 +101,7 @@ export default function Home() {
               value={code}
               onValueChange={(code) => setCode(code)}
               highlight={(code) =>
-                Prism.highlight(code, Prism.languages.whitespace, "whitespace")
+                Prism.highlight(code, Prism.languages.kaladesh, "kaladesh")
               }
               padding={10}
               style={{

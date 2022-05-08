@@ -1,5 +1,12 @@
 import Head from "next/head";
-import { Paper, IconButton, Grid, Link, Button } from "@material-ui/core";
+import {
+  Paper,
+  IconButton,
+  Grid,
+  Link,
+  Button,
+  styled,
+} from "@material-ui/core";
 import React from "react";
 
 import Editor from "react-simple-code-editor";
@@ -97,6 +104,8 @@ export default function Home() {
       <Grid container>
         <Grid item>
           <Paper>
+            <h3>コード</h3>
+            <hr style={{ marginRight: "15px" }} />
             <Editor
               value={code}
               onValueChange={(code) => setCode(code)}
@@ -117,17 +126,37 @@ export default function Home() {
             <PlayCircleIcon />
           </IconButton>
         </Grid>
-        <Grid item>
-          <Paper style={{ whiteSpace: "pre" }}>{parsedResultStr}</Paper>
-        </Grid>
-        <Grid item>
-          <IconButton onClick={onExec}>
-            <PlayCircleIcon />
-          </IconButton>
-        </Grid>
-        <Grid item>
-          <Paper style={{ whiteSpace: "pre" }}>{execResultStr}</Paper>
-        </Grid>
+        {parsedResultStr == undefined || parsedResultStr == "" ? (
+          <></>
+        ) : (
+          <>
+            <Grid item>
+              <Paper style={{ whiteSpace: "pre" }}>
+                <h3>コンパイル結果</h3>
+                <hr style={{ marginRight: "15px" }} />
+                {parsedResultStr}
+              </Paper>
+            </Grid>
+            <Grid item>
+              <IconButton onClick={onExec}>
+                <PlayCircleIcon />
+              </IconButton>
+            </Grid>
+            {execResultStr == undefined || execResultStr == "" ? (
+              <></>
+            ) : (
+              <>
+                <Grid item>
+                  <Paper style={{ whiteSpace: "pre" }}>
+                    <h3>実行結果</h3>
+                    <hr style={{ marginRight: "15px" }} />
+                    {execResultStr}
+                  </Paper>
+                </Grid>
+              </>
+            )}
+          </>
+        )}
       </Grid>
     </div>
   );

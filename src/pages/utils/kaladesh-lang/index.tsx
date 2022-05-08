@@ -178,7 +178,7 @@ function parseResultAsString(
   } else if ("error" in result) {
     let str = result.error
       .map((r: { msg: string; tokenIndex?: number; commandIndex?: number }) => {
-        return `Syntax Error: ${r.msg} Command Index=${r.commandIndex}\n`;
+        return `Syntax Error: ${r.msg}, Command Index=${r.commandIndex}\n`;
       })
       .reduce((a, b) => a + b, "");
 

@@ -436,7 +436,7 @@ export class WhitespaceParser {
     }
 
     if (completelyMatch == undefined) {
-      return error("There are no commands match to this pattern.");
+      return error("There are no commands match to this pattern");
     }
 
     return completelyMatch.cmd;

@@ -1,3 +1,4 @@
+import { error } from "console";
 import { NonErrorResult } from "./Parser";
 
 export default class WhitespaceExecutor {
@@ -120,6 +121,10 @@ export default class WhitespaceExecutor {
             }
             cmdPtr++;
             break;
+          case "KaladeshArithmetic":
+            throw new Error(
+              "あなたのコンピューターは処理に耐えられませんでした。社長がお呼びです。"
+            );
           case "Store":
             {
               const data = popStack();

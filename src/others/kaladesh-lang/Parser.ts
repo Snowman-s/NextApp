@@ -42,6 +42,7 @@ const Commands = {
   Multiply: "Multiply",
   Divide: "Divide",
   Modulo: "Modulo",
+  KaladeshArithmetic: "KaladeshArithmetic",
   Store: "Store",
   Retrieve: "Retrieve",
   Label: "Label",
@@ -343,6 +344,7 @@ export class WhitespaceParser {
       { t: ["ws", "lf"], cmd: Commands.Multiply },
       { t: ["tab", "ws"], cmd: Commands.Divide },
       { t: ["tab", "tab"], cmd: Commands.Modulo },
+      { t: ["lf"], cmd: Commands.KaladeshArithmetic },
     ]);
   }
 

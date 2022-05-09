@@ -18,8 +18,8 @@ import {
   ParseError,
   SyntaxErrors,
   WhitespaceParser,
-} from "src/others/whitespace/Parser";
-import WhitespaceExecutor from "src/others/whitespace/Executor";
+} from "src/others/kaladesh-lang/Parser";
+import WhitespaceExecutor from "src/others/kaladesh-lang/Executor";
 
 export default function Home() {
   const [code, setCode] = React.useState(

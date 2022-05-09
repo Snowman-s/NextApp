@@ -53,6 +53,11 @@ export default function Home() {
         ["Multiply", ["Tab", "LF"], "乗算"],
         ["Divide", ["Tab", "WS"], "整数での除算"],
         ["Modulo", ["Tab", "Tab"], "剰余"],
+        [
+          "KaladeshArithmetic",
+          ["LF"],
+          "コンピューターが耐えきれない位に本当にすごい演算",
+        ],
       ],
     },
     {

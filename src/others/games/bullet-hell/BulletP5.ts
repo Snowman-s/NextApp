@@ -5,6 +5,7 @@ export type Bullet = {
   y: number;
   speedX: number;
   speedY: number;
+  deleted: boolean;
   size: number;
 };
 
@@ -39,4 +40,9 @@ export class BulletP5 extends p5 {
     addToBulletsList?: boolean
   ) => Bullet[];
   freq?: (spaceFrame: number, func: () => void) => void;
+  registerRoutine?: (
+    bullets: Bullet[],
+    func: (b: Bullet) => void,
+    spaceFrame?: number
+  ) => void;
 }

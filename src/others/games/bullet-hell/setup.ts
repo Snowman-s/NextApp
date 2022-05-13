@@ -43,6 +43,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
 
     checkDash();
     movePlayer();
+    processRegisteredRoutine();
     moveBullets();
     hitCheck();
     deleteOutBullets();
@@ -80,6 +81,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
         y: 200,
         speedX: 9 * p.cos(i),
         speedY: 9 * p.sin(i),
+        deleted: false,
         size: 10,
       });
     }
@@ -260,12 +262,13 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
 
   function deleteOutBullets() {
     p.bullets = p.bullets.filter((bullet) => {
-      return (
+      const tmp =
         -100 < bullet.x &&
         bullet.x < stgWidth + 100 &&
         -100 < bullet.y &&
-        bullet.y < p.height + 100
-      );
+        bullet.y < p.height + 100;
+      bullet.deleted = !tmp;
+      return tmp;
     });
   }
 
@@ -324,8 +327,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     speed: number,
     N: number,
     middleAngle: number,
-    spaceAngle: number,
-    addToBulletsList = true
+    spaceAngle: number
   ) => {
     var bullets: Bullet[] = [];
     for (let i = 0; i < N; i++) {
@@ -336,24 +338,14 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
         size: size,
         speedX: speed * p.cos(angle),
         speedY: speed * p.sin(angle),
+        deleted: false,
       });
     }
-
-    if (addToBulletsList) p.bullets.push(...bullets);
-
+    p.bullets.push(...bullets);
     return bullets;
   };
 
-  p.allWay = (
-    x,
-    y,
-    size,
-    speed,
-    N,
-    firstAngle,
-    startRadius = 0,
-    addToBulletsList = true
-  ) => {
+  p.allWay = (x, y, size, speed, N, firstAngle, startRadius = 0) => {
     var bullets: Bullet[] = [];
     for (let i = 0; i < N; i++) {
       var angle = firstAngle + i * (p.TAU / N);
@@ -365,10 +357,11 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
         size: size,
         speedX: speed * c,
         speedY: speed * s,
+        deleted: false,
       });
     }
 
-    if (addToBulletsList) p.bullets.push(...bullets);
+    p.bullets.push(...bullets);
 
     return bullets;
   };
@@ -378,4 +371,31 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
       func();
     }
   };
+
+  let registeredRoutines: {
+    bullets: Bullet[];
+    spaceFrame: number;
+    func: (b: Bullet) => void;
+  }[] = [];
+
+  p.registerRoutine = (
+    bullets: Bullet[],
+    func: (b: Bullet) => void,
+    spaceFrame = 1
+  ) => {
+    registeredRoutines.push({ bullets, spaceFrame, func });
+  };
+
+  function processRegisteredRoutine() {
+    registeredRoutines
+      .filter((info) => p.frameCount % info.spaceFrame == 0)
+      .forEach((info) => {
+        info.bullets = info.bullets.filter((b) => !b.deleted);
+        info.bullets.forEach((b) => info.func(b));
+      });
+
+    registeredRoutines = registeredRoutines.filter(
+      (info) => info.bullets.length != 0
+    );
+  }
 }

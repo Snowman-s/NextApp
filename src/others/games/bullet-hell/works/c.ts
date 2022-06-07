@@ -19,6 +19,7 @@ export default function c(p: BulletP5) {
           y: 100,
           speedX: s * p.cos(i),
           speedY: s * p.sin(i),
+          deleted: false,
           size: 20,
         });
       }

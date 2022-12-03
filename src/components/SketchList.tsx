@@ -1,10 +1,4 @@
-import {
-  List,
-  ListItem,
-  ListSubheader,
-  MenuItem,
-  MenuList,
-} from "@material-ui/core";
+import { List, ListItem, ListSubheader } from "@material-ui/core";
 import { useRouter } from "next/dist/client/router";
 
 export class SketchListProps {

@@ -1,15 +1,15 @@
-import {
-  makeStyles,
-  createStyles,
-  Theme,
-  Paper,
-  Grid,
-} from "@material-ui/core";
+import { makeStyles, createStyles, Theme } from "@material-ui/core";
+import { Stack, List, ListItem, Paper } from "@mui/material";
+import dynamic from "next/dynamic";
 import Head from "next/head";
-import P5Canvas from "src/components/P5Canvas";
-import { SketchList } from "src/components/SketchList";
+import { useState } from "react";
+import { BulletP5 } from "src/others/games/bullet-hell/BulletP5";
+import a from "src/others/games/bullet-hell/works/a";
 import getWorksList from "src/others/games/bullet-hell/works/list";
-import lifegame from "src/others/sketches/lifegame";
+
+const P5Canvas = dynamic(() => import("src/components/P5Canvas"), {
+  ssr: false,
+});
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -24,8 +24,15 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Home() {
   const classes = useStyles();
+  const [sketch, setSketch] = useState<{
+    sketch: (p: BulletP5) => void;
+  } | null>(null);
 
-  let sketches = [];
+  let sketches: {
+    id: string;
+    sketchName: string;
+    sketchFunc: (p: BulletP5) => void;
+  }[] = [];
 
   let keys = getWorksList().keys();
 
@@ -33,10 +40,9 @@ export default function Home() {
     for (let keysItem = keys.next(); !keysItem.done; keysItem = keys.next()) {
       var elm = getWorksList().get(keysItem.value);
       sketches.push({
+        id: keysItem.value as string,
         sketchName: elm.name,
-        sketchURL: "/games/bullet-hell/" + keysItem.value + "/",
-        sketchImage:
-          process.env.NEXT_PUBLIC_ASSET_PREFIX + "/sketchimage/lifegame.png",
+        sketchFunc: elm.work,
       });
     }
   }
@@ -51,17 +57,27 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
       </Head>
-      <main>
-        <P5Canvas sketch={lifegame} minGridAmount={40}>
-          <Grid container alignItems="center" direction="column">
-            <Grid item>
-              <Paper>
-                <SketchList sketches={sketches} />
-              </Paper>
-            </Grid>
-          </Grid>
-        </P5Canvas>
-      </main>
+      <Stack direction={{ xs: "column", sm: "row" }}>
+        <Paper>
+          <List>
+            {sketches.map((sketchInfo) => {
+              return (
+                <ListItem
+                  key={sketchInfo.id}
+                  button
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setSketch({ sketch: sketchInfo.sketchFunc });
+                  }}
+                >
+                  {sketchInfo.sketchName}
+                </ListItem>
+              );
+            })}
+          </List>
+        </Paper>
+        <P5Canvas sketch={sketch !== null ? sketch.sketch : a}></P5Canvas>
+      </Stack>
     </div>
   );
 }

@@ -21,7 +21,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           </Toolbar>
         </AppBar>
       </header>
-      <Component {...pageProps} />{" "}
+      <Component {...pageProps} />
     </>
   );
 }

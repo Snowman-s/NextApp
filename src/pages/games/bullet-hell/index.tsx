@@ -57,29 +57,27 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
       </Head>
-      <main>
-        <Stack direction={{ xs: "column", sm: "row" }}>
-          <Paper>
-            <List>
-              {sketches.map((sketchInfo) => {
-                return (
-                  <ListItem
-                    key={sketchInfo.id}
-                    button
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setSketch({ sketch: sketchInfo.sketchFunc });
-                    }}
-                  >
-                    {sketchInfo.sketchName}
-                  </ListItem>
-                );
-              })}
-            </List>
-          </Paper>
-          <P5Canvas sketch={sketch !== null ? sketch.sketch : a}></P5Canvas>
-        </Stack>
-      </main>
+      <Stack direction={{ xs: "column", sm: "row" }}>
+        <Paper>
+          <List>
+            {sketches.map((sketchInfo) => {
+              return (
+                <ListItem
+                  key={sketchInfo.id}
+                  button
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setSketch({ sketch: sketchInfo.sketchFunc });
+                  }}
+                >
+                  {sketchInfo.sketchName}
+                </ListItem>
+              );
+            })}
+          </List>
+        </Paper>
+        <P5Canvas sketch={sketch !== null ? sketch.sketch : a}></P5Canvas>
+      </Stack>
     </div>
   );
 }

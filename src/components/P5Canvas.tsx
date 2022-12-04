@@ -6,15 +6,34 @@ export default function P5Canvas(props: CustomP5Props) {
 
   const [p5Inst, setP5Inst] = useState(null);
 
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   useEffect(() => {
+    let instantNeeded = true;
+
     const asyncInst = async function () {
       const newP5Inst = new (await import("p5")).default(
         props.sketch,
         parentRef.current
       );
-      setP5Inst(newP5Inst);
+      if (instantNeeded) {
+        setP5Inst(newP5Inst);
+      } else {
+        //setupDone=trueじゃないとremove()はだめだってさ
+        while (!(newP5Inst as unknown as { _setupDone: boolean })._setupDone) {
+          await sleep(10);
+        }
+        console.log(newP5Inst);
+        newP5Inst.remove();
+      }
     };
     asyncInst();
+
+    return () => {
+      instantNeeded = false;
+    };
   }, [props.sketch]);
 
   useEffect(() => {

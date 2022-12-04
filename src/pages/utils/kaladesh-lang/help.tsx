@@ -1,6 +1,5 @@
 import Head from "next/head";
-import { Button, Link, Paper } from "@material-ui/core";
-import { HorizontalSplit } from "@material-ui/icons";
+import { Button, Link } from "@material-ui/core";
 
 export default function Home() {
   const helpArray: {

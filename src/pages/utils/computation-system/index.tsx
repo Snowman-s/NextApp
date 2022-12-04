@@ -1,10 +1,5 @@
 import { Button, MenuItem, Paper, Select } from "@material-ui/core";
-import {
-  ArrowDownward,
-  CloudDownload,
-  FontDownload,
-  KeyboardArrowDown,
-} from "@material-ui/icons";
+import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import {
   ITransformHierarchy,
   SystemInput,

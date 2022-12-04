@@ -12,7 +12,7 @@ import React from "react";
 import Editor from "react-simple-code-editor";
 
 import Prism from "prismjs";
-import PlayCircleIcon from "@material-ui/icons/PlayCircleFilled";
+import PlayCircle from "@mui/icons-material/PlayCircle";
 import {
   AnalysisResult,
   ParseError,
@@ -123,7 +123,7 @@ export default function Home() {
         </Grid>
         <Grid item>
           <IconButton onClick={onParse}>
-            <PlayCircleIcon />
+            <PlayCircle />
           </IconButton>
         </Grid>
         {parsedResultStr == undefined ? (
@@ -139,7 +139,7 @@ export default function Home() {
             </Grid>
             <Grid item>
               <IconButton onClick={onExec}>
-                <PlayCircleIcon />
+                <PlayCircle />
               </IconButton>
             </Grid>
             {execResultStr == undefined ? (

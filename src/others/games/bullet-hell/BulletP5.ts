@@ -43,6 +43,7 @@ export class BulletP5 extends p5 {
   registerRoutine?: (
     bullets: Bullet[],
     func: (b: Bullet) => void,
-    spaceFrame?: number
+    spaceFrame?: number,
+    onlyOnce?: boolean
   ) => void;
 }

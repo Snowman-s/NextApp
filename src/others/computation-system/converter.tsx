@@ -9,14 +9,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
-import {
-  PlayArrow,
-  Pause,
-  FastForward,
-  SkipNext,
-  ArrowDownward,
-  ArrowUpward,
-} from "@material-ui/icons";
+import PlayArrow from "@mui/icons-material/PlayArrow";
+import Pause from "@mui/icons-material/Pause";
+import FastForward from "@mui/icons-material/FastForward";
+import SkipNext from "@mui/icons-material/SkipNext";
+import ArrowUpward from "@mui/icons-material/ArrowUpward";
 import {
   Converter,
   ITransformHierarchy,

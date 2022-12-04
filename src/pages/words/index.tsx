@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { List } from "@material-ui/core";
 import { Words } from "src/others/words/Words";
-import a from "src/others/games/bullet-hell/works/a";
 
 export default function Home() {
   let words = Words();

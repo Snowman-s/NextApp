@@ -1,10 +1,17 @@
 import { makeStyles, createStyles, Theme } from "@material-ui/core";
-import { Stack, List, ListItem, Paper } from "@mui/material";
+import ArrowForward from "@mui/icons-material/ArrowForward";
+import {
+  Stack,
+  List,
+  ListItem,
+  Paper,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useState } from "react";
 import { BulletP5 } from "src/others/games/bullet-hell/BulletP5";
-import a from "src/others/games/bullet-hell/works/a";
 import getWorksList from "src/others/games/bullet-hell/works/list";
 
 const P5Canvas = dynamic(() => import("src/components/P5Canvas"), {
@@ -22,17 +29,14 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Home() {
-  const classes = useStyles();
-  const [sketch, setSketch] = useState<{
-    sketch: (p: BulletP5) => void;
-  } | null>(null);
+type sketchInfo = {
+  readonly id: string;
+  readonly sketchName: string;
+  readonly sketchFunc: (p: BulletP5) => void;
+};
 
-  let sketches: {
-    id: string;
-    sketchName: string;
-    sketchFunc: (p: BulletP5) => void;
-  }[] = [];
+const sketches = (function () {
+  let sketches: sketchInfo[] = [];
 
   let keys = getWorksList().keys();
 
@@ -46,6 +50,12 @@ export default function Home() {
       });
     }
   }
+  return sketches;
+})();
+
+export default function Home() {
+  const classes = useStyles();
+  const [sketch, setSketch] = useState<sketchInfo>(sketches[0]);
 
   return (
     <div className={classes.root}>
@@ -64,19 +74,29 @@ export default function Home() {
               return (
                 <ListItem
                   key={sketchInfo.id}
-                  button
                   onClick={(event) => {
                     event.preventDefault();
-                    setSketch({ sketch: sketchInfo.sketchFunc });
+                    setSketch(sketchInfo);
                   }}
+                  button
                 >
-                  {sketchInfo.sketchName}
+                  {sketchInfo === sketch ? (
+                    <ListItemIcon>
+                      <ArrowForward />
+                    </ListItemIcon>
+                  ) : (
+                    <></>
+                  )}
+                  <ListItemText
+                    inset={sketchInfo !== sketch}
+                    primary={sketchInfo.sketchName}
+                  />
                 </ListItem>
               );
             })}
           </List>
         </Paper>
-        <P5Canvas sketch={sketch !== null ? sketch.sketch : a}></P5Canvas>
+        <P5Canvas sketch={sketch.sketchFunc}></P5Canvas>
       </Stack>
     </div>
   );

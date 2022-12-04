@@ -6,6 +6,8 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
 
   const speed = 5;
   const playerSize = 9;
+  const dashCooldownFrame = 60;
+  const dashContinueFrame = 10;
 
   let keys: {
     u: boolean;
@@ -49,6 +51,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     deleteOutBullets();
     if (remainTime >= 0) remainTime--;
     if (remainTime == -1) p.bullets = [];
+    renderPlayerBackgrounds();
     renderPlayer();
     renderBullets();
 
@@ -116,13 +119,13 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     if (frameByDash == -1) {
       if (keys.z) {
         dashUsed = true;
-        frameByDash = 60;
+        frameByDash = dashCooldownFrame;
       }
     }
   }
 
   function isDashActive() {
-    return frameByDash > 50;
+    return frameByDash > dashCooldownFrame - dashContinueFrame;
   }
 
   function movePlayer() {
@@ -167,6 +170,26 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     else p.fill(0, 255, 255);
 
     p.square(p.player.x, p.player.y, playerSize);
+    p.pop();
+  }
+
+  function renderPlayerBackgrounds() {
+    if (death) return;
+    if (frameByDash < 0) return;
+
+    p.push();
+    p.stroke(0, 255, 255);
+    p.noFill();
+
+    p.arc(
+      p.player.x,
+      p.player.y,
+      playerSize * 3,
+      playerSize * 3,
+      -p.PI / 2,
+      -p.PI / 2 + (frameByDash / dashCooldownFrame) * p.TAU
+    );
+
     p.pop();
   }
 
@@ -375,27 +398,41 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
   let registeredRoutines: {
     bullets: Bullet[];
     spaceFrame: number;
+    countStartframe: number;
+    onlyOnce: boolean;
     func: (b: Bullet) => void;
   }[] = [];
 
   p.registerRoutine = (
     bullets: Bullet[],
     func: (b: Bullet) => void,
-    spaceFrame = 1
+    spaceFrame = 1,
+    onlyOnce = false
   ) => {
-    registeredRoutines.push({ bullets, spaceFrame, func });
+    registeredRoutines.push({
+      bullets,
+      spaceFrame,
+      countStartframe: p.frameCount,
+      onlyOnce,
+      func,
+    });
   };
 
   function processRegisteredRoutine() {
+    const willBeRemoved = [];
+
     registeredRoutines
-      .filter((info) => p.frameCount % info.spaceFrame == 0)
+      .filter((info) => p.frameCount - info.countStartframe > info.spaceFrame)
       .forEach((info) => {
         info.bullets = info.bullets.filter((b) => !b.deleted);
         info.bullets.forEach((b) => info.func(b));
+
+        info.countStartframe += info.spaceFrame;
+        if (info.onlyOnce) willBeRemoved.push(info);
       });
 
     registeredRoutines = registeredRoutines.filter(
-      (info) => info.bullets.length != 0
+      (info) => info.bullets.length != 0 && willBeRemoved.indexOf(info) === -1
     );
   }
 }

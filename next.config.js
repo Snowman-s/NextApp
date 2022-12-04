@@ -6,7 +6,7 @@ const production = process.env.NODE_ENV.match("production") || false;
 const nextConfig = {
   reactStrictMode: true,
   basePath: production ? "/NextApp" : "",
-  assetPrefix: production ? "/NextApp" : "",
+  assetPrefix: production ? "/NextApp" : "/",
   trailingSlash: true,
 };
 

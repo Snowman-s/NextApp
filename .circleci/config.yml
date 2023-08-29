@@ -3,23 +3,23 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/node:14
+      - image: cimg/node:15.0.1
     steps:
       - checkout
-      - run: npm install
-      - run: npm run lint
+      - run: yarn
+      - run: yarn lint
   deploy:
     docker:
-      - image: circleci/node:14
+      - image: cimg/node:15.0.1
     steps:
       - checkout
-      - run: npm install
+      - run: yarn
       - run: git config user.name $GITHUB_NAME
       - run: git config user.email $GITHUB_EMAIL
-      - run: npm run build
-      - run: npm run export
+      - run: yarn build
+      - run: yarn export
       - run: touch out/.nojekyll
-      - run: npm run deploy:gh-pages
+      - run: yarn deploy:gh-pages
 workflows:
   version: 2
   build-deploy:

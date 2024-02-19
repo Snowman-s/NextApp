@@ -1,5 +1,5 @@
 import p5 from "p5";
-import { Bullet, BulletP5 } from "./BulletP5";
+import { Bullet, BulletKind, BulletP5, Laser } from "./BulletP5";
 
 export default function setup(p: BulletP5, limitSeconds = 10) {
   let canvas: p5.Renderer;
@@ -50,7 +50,10 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     hitCheck();
     deleteOutBullets();
     if (remainTime >= 0) remainTime--;
-    if (remainTime == -1) p.bullets = [];
+    if (remainTime == -1) {
+      p.bullets = [];
+      p.lasers = [];
+    }
     renderPlayerBackgrounds();
     renderPlayer();
     renderBullets();
@@ -77,21 +80,21 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
 
   //ダミー
   p.shoot = () => {
-    if (p.frameCount % 30 != 0) return;
-    for (let i = 0; i < p.TAU; i += p.PI / 5) {
-      p.bullets.push({
-        x: 200,
-        y: 200,
-        speedX: 9 * p.cos(i),
-        speedY: 9 * p.sin(i),
-        deleted: false,
-        size: 10,
-      });
-    }
   };
+
+  p.checkLaserHit = (l, x, y, size) => {
+    let dX = l.x - x;
+    let dY = l.y - y;
+    let c = p.cos(l.angle);
+    let s = p.sin(l.angle);
+    let distanceW = p.abs(s * dX - c * dY);
+    let distanceL = p.abs(c * dX + s * dY);
+    return (distanceW <= (l.width + size) / 2 && distanceL <= (l.length + size) / 2);
+  }
 
   function init() {
     p.bullets = [];
+    p.lasers = [];
     p.player = { x: 200, y: 500 };
     p.frameCount = 0;
 
@@ -158,6 +161,10 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
       b.x += b.speedX;
       b.y += b.speedY;
     });
+    p.lasers.forEach((b) => {
+      b.x += b.speed * p.cos(b.angle);
+      b.y += b.speed * p.sin(b.angle);
+    });
   }
 
   function renderPlayer() {
@@ -195,9 +202,16 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
 
   function renderBullets() {
     p.push();
+    p.noStroke();
     p.bullets.forEach((b) => {
-      p.noStroke();
       p.square(b.x, b.y, b.size);
+    });
+    p.lasers.forEach((l) => {
+      p.push();
+      p.translate(l.x, l.y);
+      p.rotate(l.angle);
+      p.rect(0, 0, l.length, l.width);
+      p.pop();
     });
     p.pop();
   }
@@ -219,6 +233,12 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
 
     p.bullets.forEach((b) => {
       if (p.dist(p.player.x, p.player.y, b.x, b.y) * 2 < playerSize + b.size) {
+        death = true;
+        frameByDeath = 0;
+      }
+    });
+    p.lasers.forEach((l) => {
+      if (p.checkLaserHit(l, p.player.x, p.player.y, playerSize)) {
         death = true;
         frameByDeath = 0;
       }
@@ -283,6 +303,19 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     }
   };
 
+  p.kill = (bulletKind) => {
+    switch (bulletKind.type) {
+      case "Bullet":
+        p.bullets = p.bullets.filter(b => b != bulletKind);
+        bulletKind.deleted = true;
+        return;
+      case "Laser":
+        p.lasers = p.lasers.filter(b => b != bulletKind);
+        bulletKind.deleted = true;
+        return;
+    }
+  }
+
   function deleteOutBullets() {
     p.bullets = p.bullets.filter((bullet) => {
       const tmp =
@@ -343,6 +376,35 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     return death || remainTime == -1;
   }
 
+  p.createBullet = (x: number, y: number, speedX: number, speedY: number, size: number) => {
+    const bullet: Bullet = {
+      x,
+      y,
+      speedX,
+      speedY,
+      size,
+      deleted: false,
+      type: "Bullet"
+    }
+    p.bullets.push(bullet);
+    return bullet;
+  }
+
+  p.createLaser = (x, y, angle, speed, width, length) => {
+    const laser: Laser = {
+      x,
+      y,
+      angle,
+      speed,
+      width,
+      length,
+      deleted: false,
+      type: "Laser"
+    }
+    p.lasers.push(laser);
+    return laser;
+  }
+
   p.nWay = (
     x: number,
     y: number,
@@ -355,16 +417,14 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     var bullets: Bullet[] = [];
     for (let i = 0; i < N; i++) {
       var angle = middleAngle + spaceAngle * (i - (N - 1) / 2);
-      bullets.push({
-        x: x,
-        y: y,
-        size: size,
-        speedX: speed * p.cos(angle),
-        speedY: speed * p.sin(angle),
-        deleted: false,
-      });
+      bullets.push(p.createBullet(
+        x,
+        y,
+        speed * p.cos(angle),
+        speed * p.sin(angle),
+        size,
+      ));
     }
-    p.bullets.push(...bullets);
     return bullets;
   };
 
@@ -374,17 +434,14 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
       var angle = firstAngle + i * (p.TAU / N);
       var c = p.cos(angle);
       var s = p.sin(angle);
-      bullets.push({
-        x: x + startRadius * c,
-        y: y + startRadius * s,
-        size: size,
-        speedX: speed * c,
-        speedY: speed * s,
-        deleted: false,
-      });
+      bullets.push(p.createBullet(
+        x + startRadius * c,
+        y + startRadius * s,
+        speed * c,
+        speed * s,
+        size,
+      ));
     }
-
-    p.bullets.push(...bullets);
 
     return bullets;
   };
@@ -396,16 +453,16 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
   };
 
   let registeredRoutines: {
-    bullets: Bullet[];
+    bullets: BulletKind[];
     spaceFrame: number;
     countStartframe: number;
     onlyOnce: boolean;
-    func: (b: Bullet) => void;
+    func: (b: BulletKind) => void;
   }[] = [];
 
-  p.registerRoutine = (
-    bullets: Bullet[],
-    func: (b: Bullet) => void,
+  p.registerRoutine = <T extends BulletKind>(
+    bullets: T[],
+    func: (b: T) => void,
     spaceFrame = 1,
     onlyOnce = false
   ) => {

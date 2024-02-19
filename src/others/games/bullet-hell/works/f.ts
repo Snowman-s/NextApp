@@ -11,16 +11,14 @@ export default function f(p: BulletP5) {
       for (let y = 0; y < 400; y += 99) {
         let x = (p.frameCount * 2 + y) % 400;
         let i = x / 30 + y;
-        let newBullet = {
-          x: x,
-          y: y + 50 * p.cos(i),
-          speedX: p.cos(i) / 2,
-          speedY: p.sin(i) / 2,
-          deleted: false,
-          size: 10,
-        };
+        let newBullet = p.createBullet(
+          x,
+          y + 50 * p.cos(i),
+          p.cos(i) / 2,
+          p.sin(i) / 2,
+          10,
+        );
         tempBullets.push(newBullet);
-        p.bullets.push(newBullet);
       }
 
       p.registerRoutine(

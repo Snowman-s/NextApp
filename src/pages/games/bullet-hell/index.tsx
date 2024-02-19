@@ -7,20 +7,21 @@ import {
   Paper,
   ListItemIcon,
   ListItemText,
+  Tabs,
+  Tab,
+  Box,
 } from "@mui/material";
-import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useState } from "react";
-import { BulletP5 } from "src/others/games/bullet-hell/BulletP5";
+import { useRef as createRef, useState } from "react";
+import P5Canvas from "src/components/P5Canvas";
 import getWorksList from "src/others/games/bullet-hell/works/list";
-
-const P5Canvas = dynamic(() => import("src/components/P5Canvas"), {
-  ssr: false,
-});
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
+      position: "fixed",
+      left: 0,
+      up: 0,
       "& h1": {
         padding: theme.spacing(3),
         color: theme.palette.primary.dark,
@@ -29,33 +30,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type sketchInfo = {
-  readonly id: string;
-  readonly sketchName: string;
-  readonly sketchFunc: (p: BulletP5) => void;
-};
-
-const sketches = (function () {
-  let sketches: sketchInfo[] = [];
-
-  let keys = getWorksList().keys();
-
-  if (getWorksList().size > 0) {
-    for (let keysItem = keys.next(); !keysItem.done; keysItem = keys.next()) {
-      var elm = getWorksList().get(keysItem.value);
-      sketches.push({
-        id: keysItem.value as string,
-        sketchName: elm.name,
-        sketchFunc: elm.work,
-      });
-    }
-  }
-  return sketches;
-})();
+const sketches = getWorksList();
 
 export default function Home() {
   const classes = useStyles();
-  const [sketch, setSketch] = useState<sketchInfo>(sketches[0]);
+  const [tab, setTab] = useState(0);
+  const [sketch, setSketch] = useState(sketches[0].data[0]);
 
   return (
     <div className={classes.root}>
@@ -68,35 +48,49 @@ export default function Home() {
         />
       </Head>
       <Stack direction={{ xs: "column", sm: "row" }}>
-        <Paper>
-          <List>
-            {sketches.map((sketchInfo) => {
-              return (
-                <ListItem
-                  key={sketchInfo.id}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setSketch(sketchInfo);
-                  }}
-                  button
-                >
-                  {sketchInfo === sketch ? (
-                    <ListItemIcon>
-                      <ArrowForward />
-                    </ListItemIcon>
-                  ) : (
-                    <></>
-                  )}
-                  <ListItemText
-                    inset={sketchInfo !== sketch}
-                    primary={sketchInfo.sketchName}
-                  />
-                </ListItem>
-              );
-            })}
-          </List>
-        </Paper>
-        <P5Canvas sketch={sketch.sketchFunc}></P5Canvas>
+        <Box>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs onChange={(_, v: number) => { setTab(v); setSketch(sketches[v].data[0]); }} variant="scrollable">
+              {sketches.map((tabs, index) => (
+                <Tab value={index} key={index} label={tabs.tabName} />
+              ))}
+            </Tabs>
+          </Box>
+          {sketches.map((tabs, thisTabIndex) =>
+          (
+            <div hidden={tab !== thisTabIndex} key={`paper-${thisTabIndex}`}>
+              <Paper>
+                <List>
+                  {tabs.data.map((work, workIndex) => {
+                    return (
+                      <ListItem
+                        key={`${thisTabIndex}-${workIndex}`}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setSketch(work);
+                        }}
+                        button
+                      >
+                        {work === sketch ? (
+                          <ListItemIcon>
+                            <ArrowForward />
+                          </ListItemIcon>
+                        ) : (
+                          <></>
+                        )}
+                        <ListItemText
+                          inset={work !== sketch}
+                          primary={work.name}
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Paper>
+            </div>
+          ))}
+        </Box>
+        <P5Canvas sketch={sketch.work}></P5Canvas>
       </Stack>
     </div>
   );

@@ -87,9 +87,12 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     let dY = l.y - y;
     let c = p.cos(l.angle);
     let s = p.sin(l.angle);
-    let distanceW = p.abs(s * dX - c * dY);
-    let distanceL = p.abs(c * dX + s * dY);
-    return (distanceW <= (l.width + size) / 2 && distanceL <= (l.length + size) / 2);
+    let deltaW = s * dX - c * dY;
+    let deltaL = c * dX + s * dY;
+
+    let willHitOnWidth = p.abs(deltaW) <= (l.width + size) / 2;
+    let willHitOnLength = l.justStartFromX ? 0 <= -deltaL && -deltaL <= (l.length + size) : p.abs(deltaL) <= (l.length + size) / 2;
+    return (willHitOnWidth && willHitOnLength);
   }
 
   function init() {
@@ -210,7 +213,11 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
       p.push();
       p.translate(l.x, l.y);
       p.rotate(l.angle);
-      p.rect(0, 0, l.length, l.width);
+      if (l.justStartFromX) {
+        p.rect(l.length / 2, 0, l.length, l.width);
+      } else {
+        p.rect(0, 0, l.length, l.width);
+      }
       p.pop();
     });
     p.pop();
@@ -390,7 +397,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     return bullet;
   }
 
-  p.createLaser = (x, y, angle, speed, width, length) => {
+  p.createLaser = (x, y, angle, speed, width, length, justStartFromX = false) => {
     const laser: Laser = {
       x,
       y,
@@ -399,6 +406,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
       width,
       length,
       deleted: false,
+      justStartFromX,
       type: "Laser"
     }
     p.lasers.push(laser);
@@ -447,7 +455,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
   };
 
   p.freq = (spaceFrame: number, func: () => void) => {
-    if (p.frameCount % spaceFrame == 0) {
+    if ((p.frameCount - 1) % spaceFrame == 0) {
       func();
     }
   };
@@ -463,13 +471,16 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
   p.registerRoutine = <T extends BulletKind>(
     bullets: T[],
     func: (b: T) => void,
-    spaceFrame = 1,
-    onlyOnce = false
+    {
+      waitFrame = 0,
+      spaceFrame = 1,
+      onlyOnce = false
+    } = {}
   ) => {
     registeredRoutines.push({
       bullets,
       spaceFrame,
-      countStartframe: p.frameCount,
+      countStartframe: p.frameCount + waitFrame,
       onlyOnce,
       func,
     });

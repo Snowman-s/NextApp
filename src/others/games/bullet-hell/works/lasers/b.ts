@@ -1,5 +1,5 @@
-import { BulletP5, Laser } from "../BulletP5";
-import setup from "../setup";
+import { BulletP5, Laser } from "../../BulletP5";
+import setup from "../../setup";
 
 export default function (p: BulletP5) {
   setup(p, 15);
@@ -13,7 +13,7 @@ export default function (p: BulletP5) {
       }
       p.registerRoutine(lasers, (laser) => {
         laser.length = p.frameCount / 2 * p.sin((laser.x == 400 ? 0 : p.PI / 2) + (laser.y / 9 + p.frameCount) / 30);
-      }, 1);
+      });
     };
 
     p.freq(30, () => {

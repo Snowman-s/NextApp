@@ -1,5 +1,5 @@
-import { Bullet, BulletP5 } from "../BulletP5";
-import setup from "../setup";
+import { Bullet, BulletP5 } from "../../BulletP5";
+import setup from "../../setup";
 
 export default function f(p: BulletP5) {
   setup(p, 15);
@@ -27,8 +27,10 @@ export default function f(p: BulletP5) {
           b.speedX *= 5;
           b.speedY *= 5;
         },
-        40,
-        true
+        {
+          spaceFrame: 40,
+          onlyOnce: true
+        }
       );
     });
   };

@@ -1,5 +1,5 @@
-import { BulletP5 } from "../BulletP5";
-import setup from "../setup";
+import { BulletP5 } from "../../BulletP5";
+import setup from "../../setup";
 
 export default function b(p: BulletP5) {
   setup(p, 15);

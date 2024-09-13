@@ -1,13 +1,14 @@
 import { BulletP5 } from "../BulletP5";
-import a from "./a";
-import b from "./b";
-import c from "./c";
-import d from "./d";
-import e from "./e";
-import f from "./f";
-import a2 from "./a2";
-import b2 from "./b2";
-import c2 from "./c2";
+import a from "./base/a";
+import b from "./base/b";
+import c from "./base/c";
+import d from "./base/d";
+import e from "./base/e";
+import f from "./base/f";
+import a2 from "./lasers/a";
+import b2 from "./lasers/b";
+import c2 from "./lasers/c";
+import d2 from "./lasers/d";
 
 export default function getWorksList() {
   var insertingTab: { data: { work: (p: BulletP5) => void; name: string }[], tabName: string } | null = null;
@@ -36,6 +37,7 @@ export default function getWorksList() {
   addMap(c2, "信仰心");
   addMap(a2, "身から出る錆");
   addMap(b2, "モーセの奇跡");
+  addMap(d2, "流星のレクイエム");
 
   return tabs;
 }

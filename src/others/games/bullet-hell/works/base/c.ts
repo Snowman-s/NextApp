@@ -1,5 +1,5 @@
-import { BulletP5 } from "../BulletP5";
-import setup from "../setup";
+import { BulletP5 } from "../../BulletP5";
+import setup from "../../setup";
 
 export default function c(p: BulletP5) {
   setup(p, 15);
@@ -14,14 +14,7 @@ export default function c(p: BulletP5) {
       ) {
         let s = (1.1 + p.cos(i * 2 + p.frameCount / 57)) * 4;
 
-        p.bullets.push({
-          x: 200,
-          y: 100,
-          speedX: s * p.cos(i),
-          speedY: s * p.sin(i),
-          deleted: false,
-          size: 20,
-        });
+        p.createBullet(200, 100, s * p.cos(i), s * p.sin(i), 20,);
       }
     });
   };

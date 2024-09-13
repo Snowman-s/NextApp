@@ -20,6 +20,11 @@ export type Laser = {
   length: number;
   deleted: boolean;
 
+  /**
+   * 指定したポジションからLengthだけ伸びるならtrue, 中央から両方に伸びるならFalse。
+   */
+  justStartFromX: boolean,
+
   type: "Laser";
 }
 
@@ -70,6 +75,7 @@ export class BulletP5 extends p5 {
     speed: number,
     width: number,
     length: number,
+    justStartFromX?: boolean,
   ) => Laser;
   checkLaserHit?: (
     l: Laser,
@@ -82,7 +88,10 @@ export class BulletP5 extends p5 {
   registerRoutine?: <T extends BulletKind>(
     bullets: T[],
     func: (b: T) => void,
-    spaceFrame?: number,
-    onlyOnce?: boolean
+    extraArg?: {
+      waitFrame?: number,
+      spaceFrame?: number,
+      onlyOnce?: boolean
+    }
   ) => void;
 }

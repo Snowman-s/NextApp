@@ -1,5 +1,5 @@
-import { BulletP5, Laser } from "../BulletP5";
-import setup from "../setup";
+import { BulletP5, Laser } from "../../BulletP5";
+import setup from "../../setup";
 
 export default function (p: BulletP5) {
   setup(p, 15);
@@ -12,7 +12,7 @@ export default function (p: BulletP5) {
         lasers.push(p.createLaser(200, 200, i / s / 3 * p.TAU + p.frameCount, 3, 5, 0))
       }
       let f = p.frameCount;
-      p.registerRoutine(lasers, l => { l.length = p.min(200, (p.frameCount - f) * 3); }, 1, false);
+      p.registerRoutine(lasers, l => { l.length = p.min(200, (p.frameCount - f) * 3); });
     })
   };
 }

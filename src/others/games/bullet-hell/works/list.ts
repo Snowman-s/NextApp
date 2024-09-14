@@ -9,6 +9,8 @@ import a2 from "./lasers/a";
 import b2 from "./lasers/b";
 import c2 from "./lasers/c";
 import d2 from "./lasers/d";
+import e2 from "./lasers/e";
+import f2 from "./lasers/f";
 
 export default function getWorksList() {
   var insertingTab: { data: { work: (p: BulletP5) => void; name: string }[], tabName: string } | null = null;
@@ -38,6 +40,8 @@ export default function getWorksList() {
   addMap(a2, "身から出る錆");
   addMap(b2, "モーセの奇跡");
   addMap(d2, "流星のレクイエム");
+  addMap(e2, "川流しの花");
+  addMap(f2, "慈悲の圧迫");
 
   return tabs;
 }

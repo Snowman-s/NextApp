@@ -1,5 +1,7 @@
 import p5 from "p5";
 
+export type BulletImg = "White" | "Black";
+
 export type Bullet = {
   x: number;
   y: number;
@@ -7,6 +9,7 @@ export type Bullet = {
   speedY: number;
   size: number;
   deleted: boolean;
+  img: BulletImg;
 
   type: "Bullet";
 };
@@ -46,7 +49,8 @@ export class BulletP5 extends p5 {
     y: number,
     speedX: number,
     speedY: number,
-    size: number
+    size: number,
+    img?: BulletImg
   ) => Bullet;
   nWay?: (
     x: number,

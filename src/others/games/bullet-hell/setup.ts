@@ -1,5 +1,5 @@
 import p5 from "p5";
-import { Bullet, BulletKind, BulletP5, Laser } from "./BulletP5";
+import { Bullet, BulletImg, BulletKind, BulletP5, Laser } from "./BulletP5";
 
 export default function setup(p: BulletP5, limitSeconds = 10) {
   let canvas: p5.Renderer;
@@ -204,13 +204,27 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
   }
 
   function renderBullets() {
-    p.push();
-    p.noStroke();
     p.bullets.forEach((b) => {
-      p.square(b.x, b.y, b.size);
+      p.push();
+      switch (b.img) {
+        case "White":
+          p.noStroke();
+          p.square(b.x, b.y, b.size);
+          break
+        case "Black":
+          p.stroke(255);
+          p.fill(0);
+          p.strokeWeight(3);
+          p.square(b.x, b.y, b.size);
+          break
+        default:
+          const _t: never = b.img;
+      }
+      p.pop();
     });
     p.lasers.forEach((l) => {
       p.push();
+      p.noStroke();
       p.translate(l.x, l.y);
       p.rotate(l.angle);
       if (l.justStartFromX) {
@@ -220,7 +234,6 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
       }
       p.pop();
     });
-    p.pop();
   }
 
   function renderTime() {
@@ -383,7 +396,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     return death || remainTime == -1;
   }
 
-  p.createBullet = (x: number, y: number, speedX: number, speedY: number, size: number) => {
+  p.createBullet = (x: number, y: number, speedX: number, speedY: number, size: number, img: BulletImg = "White") => {
     const bullet: Bullet = {
       x,
       y,
@@ -391,6 +404,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
       speedY,
       size,
       deleted: false,
+      img,
       type: "Bullet"
     }
     p.bullets.push(bullet);

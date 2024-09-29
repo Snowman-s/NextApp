@@ -11,6 +11,9 @@ import c2 from "./lasers/c";
 import d2 from "./lasers/d";
 import e2 from "./lasers/e";
 import f2 from "./lasers/f";
+import a3 from "./mirror/a";
+import b3 from "./mirror/b";
+import c3 from "./mirror/c";
 
 export default function getWorksList() {
   var insertingTab: { data: { work: (p: BulletP5) => void; name: string }[], tabName: string } | null = null;
@@ -42,6 +45,11 @@ export default function getWorksList() {
   addMap(d2, "流星のレクイエム");
   addMap(e2, "川流しの花");
   addMap(f2, "慈悲の圧迫");
+
+  newTab("鏡術");
+  addMap(a3, "反鏡飛翔法");
+  addMap(b3, "鏡鳴転身");
+  addMap(c3, "端の鏡界線");
 
   return tabs;
 }

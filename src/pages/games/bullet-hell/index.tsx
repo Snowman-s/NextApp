@@ -12,7 +12,7 @@ import {
   Box,
 } from "@mui/material";
 import Head from "next/head";
-import { useRef as createRef, useState } from "react";
+import { useState } from "react";
 import P5Canvas from "src/components/P5Canvas";
 import getWorksList from "src/others/games/bullet-hell/works/list";
 

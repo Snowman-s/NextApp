@@ -1,7 +1,8 @@
 import Head from "next/head";
-import { IconButton, TextField, Typography, Grid } from "@material-ui/core";
+import { TextField, Typography, Stack } from "@mui/material";
 import calcIt from "src/others/calculator/calc";
 import { useState } from "react";
+import CustomBar from "src/components/CustomBar";
 
 export default function Home() {
   const [result, setResult] = useState("0.0");
@@ -21,17 +22,12 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
       </Head>
-      <Grid container>
-        <Grid item>
-          <TextField onChange={onFormulaChanged} />
-        </Grid>
-        <Grid item>
-          <Typography> = </Typography>
-        </Grid>
-        <Grid item>
-          <Typography>{result}</Typography>
-        </Grid>
-      </Grid>
+      <CustomBar />
+      <Stack direction="row">
+        <TextField onChange={onFormulaChanged} />
+        <Typography> = </Typography>
+        <Typography>{result}</Typography>
+      </Stack>
     </div>
   );
 }

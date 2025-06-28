@@ -1,12 +1,9 @@
 import {
-  makeStyles,
-  createStyles,
-  Theme,
   Paper,
-  Grid,
-} from "@material-ui/core";
+} from "@mui/material";
 import dynamic from "next/dynamic";
 import Head from "next/head";
+import CustomBar from "src/components/CustomBar";
 import { SketchList } from "src/components/SketchList";
 import lifegame from "src/others/sketches/lifegame";
 
@@ -14,19 +11,7 @@ const P5Canvas = dynamic(() => import("src/components/P5Canvas"), {
   ssr: false,
 });
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      "& h1": {
-        padding: theme.spacing(3),
-        color: theme.palette.primary.dark,
-      },
-    },
-  })
-);
-
 export default function Home() {
-  const classes = useStyles();
 
   const sketches = [
     {
@@ -50,7 +35,7 @@ export default function Home() {
   ];
 
   return (
-    <div className={classes.root}>
+    <div>
       <Head>
         <title>p5.js Sketches</title>
         <meta name="description" content="p5.js スケッチの詰め合わせ" />
@@ -59,17 +44,18 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
       </Head>
+      <CustomBar />
       <main>
         <P5Canvas sketch={lifegame} minGridAmount={40}>
-          <Grid container alignItems="center" direction="column">
-            <Grid item>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div>
               <Paper>
-                <h1>p5.js スケッチ詰め合わせ</h1>
-                <p>p5.jsにて作成したインタラクティブなスケッチ群です！</p>
+                <h1 style={{ padding: 3 }}>p5.js スケッチ詰め合わせ</h1>
+                <p style={{ padding: 5 }}>p5.jsにて作成したインタラクティブなスケッチ群です！</p>
                 <SketchList sketches={sketches} />
               </Paper>
-            </Grid>
-          </Grid>
+            </div>
+          </div>
         </P5Canvas>
       </main>
     </div>

@@ -4,12 +4,12 @@ import React, { useEffect, useRef } from "react";
 import p5 from "p5";
 
 export default function P5Canvas(props: CustomP5Props) {
-  const parentRef = useRef();
+  const parentRef = useRef(null as HTMLDivElement | null);
   const p5Inst = useRef<CustomP5>(null);
 
   useEffect(() => {
     killP5(p5Inst.current);
-    p5Inst.current = new p5(props.sketch, parentRef.current);
+    p5Inst.current = new p5(props.sketch, parentRef.current!);
   }, [props.sketch]);
 
   useEffect(() => {

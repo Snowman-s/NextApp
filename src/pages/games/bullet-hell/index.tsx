@@ -1,5 +1,3 @@
-import { makeStyles, createStyles, Theme } from "@material-ui/core";
-import ArrowForward from "@mui/icons-material/ArrowForward";
 import {
   Stack,
   List,
@@ -10,35 +8,24 @@ import {
   Tabs,
   Tab,
   Box,
+  ListItemButton,
 } from "@mui/material";
+import ArrowForward from "@mui/icons-material/ArrowForward";
 import Head from "next/head";
 import { useState } from "react";
 import P5Canvas from "src/components/P5Canvas";
 import getWorksList from "src/others/games/bullet-hell/works/list";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      position: "fixed",
-      left: 0,
-      up: 0,
-      "& h1": {
-        padding: theme.spacing(3),
-        color: theme.palette.primary.dark,
-      },
-    },
-  })
-);
+import CustomBar from "src/components/CustomBar";
+import { CustomP5 } from "src/others/CustomP5";
 
 const sketches = getWorksList();
 
 export default function Home() {
-  const classes = useStyles();
   const [tab, setTab] = useState(0);
   const [sketch, setSketch] = useState(sketches[0].data[0]);
 
   return (
-    <div className={classes.root}>
+    <div>
       <Head>
         <title>BulletHell</title>
         <meta name="description" content="弾幕シューティングをしよう" />
@@ -47,6 +34,7 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
       </Head>
+      <CustomBar />
       <Stack direction={{ xs: "column", sm: "row" }}>
         <Box>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -63,13 +51,12 @@ export default function Home() {
                 <List>
                   {tabs.data.map((work, workIndex) => {
                     return (
-                      <ListItem
+                      <ListItemButton
                         key={`${thisTabIndex}-${workIndex}`}
                         onClick={(event) => {
                           event.preventDefault();
                           setSketch(work);
                         }}
-                        button
                       >
                         {work === sketch ? (
                           <ListItemIcon>
@@ -82,7 +69,7 @@ export default function Home() {
                           inset={work !== sketch}
                           primary={work.name}
                         />
-                      </ListItem>
+                      </ListItemButton>
                     );
                   })}
                 </List>
@@ -90,7 +77,7 @@ export default function Home() {
             </div>
           ))}
         </Box>
-        <P5Canvas sketch={sketch.work}></P5Canvas>
+        <P5Canvas sketch={sketch.work as (p: CustomP5) => void}></P5Canvas>
       </Stack>
     </div>
   );

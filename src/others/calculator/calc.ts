@@ -1,5 +1,5 @@
 import { Compiler } from "bnf";
-import bnfToken from "src/others/bnf/token";
+import { type bnfToken } from "src/others/bnf/token";
 import { createNode } from "./evaluation_node";
 
 export default function calcIt(it: String) {

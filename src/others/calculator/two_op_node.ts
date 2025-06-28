@@ -1,8 +1,8 @@
 import { createNode, evaluation_node } from "./evaluation_node";
-import bnfToken from "../bnf/token";
+import { type bnfToken } from "../bnf/token";
 
 export default class two_op_node implements evaluation_node {
-  elements: two_op_element[];
+  elements: two_op_element[] = [];
   calc() {
     const stack = [];
     this.elements.forEach((element) => {
@@ -29,7 +29,7 @@ export default class two_op_node implements evaluation_node {
             stack.length > 0 &&
             stack[0].priority() >= theNode.priority()
           ) {
-            out.push(stack.pop());
+            out.push(stack.pop()!);
           }
           stack.push(theNode);
         default:
@@ -50,10 +50,11 @@ interface two_op_element {
 }
 
 class two_op_term_element implements two_op_element {
-  term: evaluation_node;
+  private constructor() { }
+  term: evaluation_node | null = null;
 
   do(stack: Array<number>) {
-    stack.push(this.term.calc());
+    stack.push(this.term!.calc());
   }
 
   static create(token: bnfToken) {
@@ -64,13 +65,12 @@ class two_op_term_element implements two_op_element {
     return node;
   }
 }
-
 class operator_element implements two_op_element {
-  op: string;
+  op: string = "";
 
   do(stack: Array<number>) {
-    const num1 = stack.pop();
-    const num2 = stack.pop();
+    const num1 = stack.pop()!;
+    const num2 = stack.pop()!;
 
     switch (this.op) {
       case "+":

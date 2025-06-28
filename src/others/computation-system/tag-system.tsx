@@ -33,7 +33,7 @@ export function tagSystemAndInputBuilder(
       usedLetters.set(str, TagSystemLetterFrom(str)[0]);
     }
 
-    return usedLetters.get(str);
+    return usedLetters.get(str)!;
   };
 
   const ruleSetBuilder = TagSystemRuleSet.builder();

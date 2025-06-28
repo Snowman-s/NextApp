@@ -26,7 +26,7 @@ export type ParseError = { msg: string; tokenIndex: number };
 export type SyntaxError = { msg: string; commandIndex: number };
 export type SyntaxErrors = {
   error: SyntaxError[];
-  out: AnalysisCommandResult<Commands>[];
+  out: (AnalysisCommandResult<Commands> | null)[];
 };
 type ErrorOr<T> = ErrorMessage | T;
 
@@ -208,7 +208,7 @@ export class WhitespaceParser {
       if (tmp == undefined) throw new UnexpectedEOFError();
       return tmp;
     };
-    let output: AnalysisCommandResult<Commands>[] = [];
+    let output: (AnalysisCommandResult<Commands> | null)[] = [];
     let labels: { label: string; commandIndex: number }[] = [];
     let errorOutput: SyntaxError[] = [];
     try {
@@ -233,10 +233,12 @@ export class WhitespaceParser {
             break;
           default:
             const _n: never = imp;
-            break;
+            throw new Error(
+              `Unknown IMP type: ${_n}. This should never happen.`
+            );
         }
         if ("msg" in command) {
-          output.push(undefined);
+          output.push(null);
           errorOutput.push(
             Object.assign(command, { commandIndex: output.length - 1 })
           );
@@ -261,7 +263,7 @@ export class WhitespaceParser {
 
     //同じラベルをつけない
     {
-      let tmp = [];
+      let tmp: string[] = [];
       labels.forEach((l) => {
         if (tmp.indexOf(l.label) != -1) {
           errorOutput.push({
@@ -300,7 +302,7 @@ export class WhitespaceParser {
         out: output,
       };
     }
-    return { commands: output, labels: labels };
+    return { commands: output as AnalysisCommandResult<Commands>[], labels: labels };
   }
 
   private findIMP(sup: () => TranscriptedToken) {
@@ -407,7 +409,7 @@ export class WhitespaceParser {
     sup: () => TranscriptedToken,
     map: { t: TranscriptedToken[]; cmd: T }[]
   ): ErrorOr<Commands> {
-    let readTokens = [];
+    let readTokens: TranscriptedToken[] = [];
     readTokens.push(sup());
 
     //より読んでいったら存在するかもしれない

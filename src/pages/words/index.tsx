@@ -1,6 +1,7 @@
 import Head from "next/head";
-import { List } from "@material-ui/core";
+import { List } from "@mui/material";
 import { Words } from "src/others/words/Words";
+import CustomBar from "src/components/CustomBar";
 
 export default function Home() {
   let words = Words();
@@ -31,6 +32,7 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
       </Head>
+      <CustomBar />
       <div style={{ padding: "10px" }}>
         <h1>用語集</h1>
         <p>私のルーツやコアや趣味など</p>

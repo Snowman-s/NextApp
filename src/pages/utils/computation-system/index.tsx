@@ -1,4 +1,4 @@
-import { Button, MenuItem, Paper, Select } from "@material-ui/core";
+import { Button, MenuItem, Paper, Select } from "@mui/material";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import {
   ITransformHierarchy,
@@ -8,20 +8,21 @@ import {
 } from "computation-system";
 import { useState } from "react";
 import {
-  createHierarchy,
+  createHierarchyFromTrans,
   getDefaultCode,
   SystemTrans,
   SystemTransTable,
   toJSX,
   toSystemCreateJSX,
 } from "src/others/computation-system/converter";
+import CustomBar from "src/components/CustomBar";
 
-type HierarchyAndValidTrans<T extends SystemTrans> = [
-  T,
-  ITransformHierarchy<SystemTransTable[T][0]>,
-  SystemTransTable[T][0][0] | null,
-  SystemInput<SystemTransTable[T][0][0]> | null
-];
+type HierarchyAndValidTrans<T extends SystemTrans> = {
+  trans: T,
+  hierarchy: ITransformHierarchy<SystemTransTable[T]["systemFlow"], SystemTransTable[T]["log"]>,
+  system: SystemTransTable[T]["systemFlow"][0] | null,
+  input: SystemInput<SystemTransTable[T]["systemFlow"][0]> | null
+};
 
 export default function Home() {
   const [hierarchyAndValidTrans, setHierarchyAndValidTrans] =
@@ -29,117 +30,129 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [trans, setTrans] = useState<SystemTrans>("2-TagSystem to TM");
-  const [proceedTimer, setProceedTimer] = useState<NodeJS.Timer | null>(null);
+  const [proceedTimer, setProceedTimer] = useState<NodeJS.Timeout | null>(null);
   const [isStarted, setStarted] = useState(false);
 
   return (
     <>
-      <Select
-        label="Select simulator..."
-        value={trans}
-        onChange={(event) => {
-          setTrans(event.target.value as SystemTrans);
-        }}
-      >
-        {SystemTrans.map((str) => (
-          <MenuItem key={str} value={str}>
-            {str}
-          </MenuItem>
-        ))}
-      </Select>
-      <Button
-        onClick={() => {
-          setHierarchyAndValidTrans([
-            trans,
-            createHierarchy(trans),
-            null,
-            [[]],
-          ]);
-          setCode(getDefaultCode(trans));
-        }}
-      >
-        Setup Simulator
-      </Button>
-      {hierarchyAndValidTrans === null ? (
-        <></>
-      ) : (
-        <>
-          <Paper>
-            {toSystemCreateJSX(
-              hierarchyAndValidTrans[0],
-              code,
-              setCode,
-              error,
-              setError,
-              (system: TagSystem, input: [letters: TagSystemLetter[]]) => {
-                hierarchyAndValidTrans[1].start(system, input);
-                setStarted(true);
-                clearInterval(proceedTimer);
-                setProceedTimer(null);
-                setHierarchyAndValidTrans([
-                  hierarchyAndValidTrans[0],
-                  hierarchyAndValidTrans[1],
-                  system,
-                  input,
-                ]);
-              }
-            )}
-          </Paper>
-          <KeyboardArrowDown />
-          <Paper>
-            {toJSX(
-              hierarchyAndValidTrans[0],
-              hierarchyAndValidTrans[1],
-              {
-                onStart: isStarted
-                  ? () => {
+      <CustomBar />
+      <div style={{ padding: "10px" }}>
+        <Select
+          value={trans}
+          onChange={(event) => {
+            setTrans(event.target.value as SystemTrans);
+          }}
+        >
+          {SystemTrans.map((str) => (
+            <MenuItem key={str} value={str}>
+              {str}
+            </MenuItem>
+          ))}
+        </Select>
+        <Button
+          onClick={() => {
+            setHierarchyAndValidTrans({
+              trans,
+              hierarchy: createHierarchyFromTrans(trans),
+              system: null,
+              input: [[]],
+            });
+            setCode(getDefaultCode(trans));
+          }}
+        >
+          Setup Simulator
+        </Button>
+        {hierarchyAndValidTrans === null ? (
+          <></>
+        ) : (
+          <>
+            <Paper>
+              {toSystemCreateJSX(
+                hierarchyAndValidTrans.trans,
+                code,
+                setCode,
+                error,
+                setError,
+                (system: TagSystem, input: [letters: TagSystemLetter[]]) => {
+                  hierarchyAndValidTrans.hierarchy.start(system, input);
+                  setStarted(true);
+                  if (proceedTimer !== null) {
+                    clearInterval(proceedTimer);
+                    setProceedTimer(null);
+                  }
+                  setHierarchyAndValidTrans({
+                    ...hierarchyAndValidTrans,
+                    system,
+                    input,
+                  });
+                }
+              )}
+            </Paper>
+            <KeyboardArrowDown />
+            <Paper style={{ padding: 10 }}>
+              {toJSX(
+                hierarchyAndValidTrans.trans,
+                hierarchyAndValidTrans.hierarchy,
+                {
+                  onStart: isStarted
+                    ? () => {
                       setProceedTimer(
                         setInterval(() => {
-                          hierarchyAndValidTrans[1].proceed(1);
-                          setHierarchyAndValidTrans([
+                          hierarchyAndValidTrans.hierarchy.proceed(1);
+                          setHierarchyAndValidTrans({
                             ...hierarchyAndValidTrans,
-                          ]);
+                          });
                         }, 100)
                       );
                     }
-                  : undefined,
-                isStarted: proceedTimer !== null,
-                onProceed: isStarted
-                  ? () => {
-                      hierarchyAndValidTrans[1].proceed(1);
-                      setHierarchyAndValidTrans([...hierarchyAndValidTrans]);
+                    : undefined,
+                  isStarted: proceedTimer !== null,
+                  onProceed: isStarted
+                    ? () => {
+                      hierarchyAndValidTrans.hierarchy.proceed(1);
+                      setHierarchyAndValidTrans({ ...hierarchyAndValidTrans });
+                      if (proceedTimer !== null) {
+                        clearInterval(proceedTimer);
+                        setProceedTimer(null);
+                      }
+                      setProceedTimer(null);
+                    }
+                    : undefined,
+                  onStop() {
+                    if (proceedTimer !== null) {
                       clearInterval(proceedTimer);
                       setProceedTimer(null);
                     }
-                  : undefined,
-                onStop() {
-                  clearInterval(proceedTimer);
-                  setProceedTimer(null);
+                    setProceedTimer(null);
+                  },
                 },
-              },
 
-              {
-                onSkipUntilInterpretable: isStarted
-                  ? (system) => {
-                      clearInterval(proceedTimer);
+                {
+                  onSkipUntilInterpretable: isStarted
+                    ? (system) => {
+                      if (proceedTimer !== null) {
+                        clearInterval(proceedTimer);
+                        setProceedTimer(null);
+                      }
                       setProceedTimer(null);
                       for (let i = 0; i < 30000; i++) {
-                        hierarchyAndValidTrans[1].proceed(1);
+                        hierarchyAndValidTrans.hierarchy.proceed(1);
                         if (
-                          hierarchyAndValidTrans[1].getConfiguration(system) !==
+                          hierarchyAndValidTrans.hierarchy.getConfiguration(system) !==
                           null
                         ) {
                           break;
                         }
                       }
-                      setHierarchyAndValidTrans([...hierarchyAndValidTrans]);
+                      setHierarchyAndValidTrans({ ...hierarchyAndValidTrans });
                     }
-                  : undefined,
-              }
-            )}
-          </Paper>
-        </>
-      )}
+                    : undefined,
+                }
+              )}
+            </Paper>
+          </>
+        )}
+      </div>
     </>
   );
 }

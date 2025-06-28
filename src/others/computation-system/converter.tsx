@@ -1,14 +1,18 @@
 import {
-  Box,
   Button,
   Card,
   CardContent,
-  Container,
-  Grid,
   IconButton,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
-} from "@material-ui/core";
-import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
+} from "@mui/material";
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import Pause from "@mui/icons-material/Pause";
 import FastForward from "@mui/icons-material/FastForward";
@@ -16,44 +20,45 @@ import SkipNext from "@mui/icons-material/SkipNext";
 import ArrowUpward from "@mui/icons-material/ArrowUpward";
 import {
   Converter,
+  createHierarchy,
   ITransformHierarchy,
   SystemConfigration,
   SystemInput,
   SystemTuple,
+  Tag2SystemToTuringMachine218TransformLog,
   TagSystem,
-  TransformLogTable,
-  TransformLogTableElm,
   TuringMachine,
 } from "computation-system";
 
 import Editor from "react-simple-code-editor";
 import { defaultTagSystemCode, tagSystemAndInputBuilder } from "./tag-system";
+import { JSX } from "react";
 
 export const SystemTrans = ["2-TagSystem to TM"] as const;
 export type SystemTrans = typeof SystemTrans[number];
 
 export type SystemTransTable = {
-  "2-TagSystem to TM": [[TagSystem, TuringMachine]];
+  "2-TagSystem to TM": { "systemFlow": [TagSystem, TuringMachine], "log": [Tag2SystemToTuringMachine218TransformLog] };
 };
 
-export function createHierarchy<T extends SystemTrans>(
+export function createHierarchyFromTrans<T extends SystemTrans>(
   trans: T
-): ITransformHierarchy<SystemTransTable[T][0]> {
+): ITransformHierarchy<SystemTransTable[T]["systemFlow"], [Tag2SystemToTuringMachine218TransformLog]> {
   switch (trans) {
     case "2-TagSystem to TM":
-      return Converter.tag2SystemToTuringMachine218New();
+      return createHierarchy(Converter.tag2SystemToTuringMachine218());
   }
 }
 
 export function toJSX<T extends SystemTrans>(
   trans: T,
-  hierarchy: ITransformHierarchy<SystemTransTable[T][0]>,
+  hierarchy: ITransformHierarchy<SystemTransTable[T]["systemFlow"], unknown[]>,
   proceedButtonArgs: ProceedButtonArgs,
   skipButtonArgs: SkipButtonArgs
 ): JSX.Element {
   switch (trans) {
     case "2-TagSystem to TM":
-      return tag2SystemToTM(hierarchy, proceedButtonArgs, skipButtonArgs);
+      return tag2SystemToTM(hierarchy as ITransformHierarchy<[TagSystem, TuringMachine], [Tag2SystemToTuringMachine218TransformLog]>, proceedButtonArgs, skipButtonArgs);
   }
 }
 
@@ -96,19 +101,18 @@ function ProceedButton(props: ProceedButtonArgs) {
 }
 
 function SkipButton(props: SkipButtonArgs & { system: number }) {
-  return (
-    <>
-      {props.onSkipUntilInterpretable !== undefined ? (
-        <IconButton
-          onClick={() => props.onSkipUntilInterpretable(props.system)}
-        >
-          <SkipNext />
-        </IconButton>
-      ) : (
-        <></>
-      )}
-    </>
-  );
+  const onSkipUntilInterpretable = props.onSkipUntilInterpretable;
+  if (onSkipUntilInterpretable === undefined) {
+    return <></>;
+  } else {
+    return (
+      <IconButton
+        onClick={() => onSkipUntilInterpretable(props.system)}
+      >
+        <SkipNext />
+      </IconButton>
+    );
+  }
 }
 
 function CompileButton(onClick: () => void) {
@@ -122,8 +126,8 @@ export function toSystemCreateJSX<T extends SystemTrans>(
   error: string,
   setError: (error: string) => void,
   setSystemAndInput: (
-    system: SystemTransTable[T][0][0],
-    input: SystemInput<SystemTransTable[T][0][0]>
+    system: SystemTransTable[T]["systemFlow"][0],
+    input: SystemInput<SystemTransTable[T]["systemFlow"][0]>
   ) => void
 ): JSX.Element {
   switch (trans) {
@@ -146,12 +150,12 @@ export function getDefaultCode(trans: SystemTrans) {
 }
 
 function tag2SystemToTM(
-  input: ITransformHierarchy<[TagSystem, TuringMachine]>,
+  input: ITransformHierarchy<[TagSystem, TuringMachine], [Tag2SystemToTuringMachine218TransformLog]>,
   proceedButtonArgs: ProceedButtonArgs,
   skipButtonArgs: SkipButtonArgs
 ): JSX.Element {
   let mapper = function mapper(
-    elm: TransformLogTableElm[] | TransformLogTableElm
+    elm: any
   ): string {
     if (Array.isArray(elm)) {
       return elm.map((e) => mapper(e)).reduce((a, b) => a + b, "");
@@ -167,68 +171,55 @@ function tag2SystemToTM(
     }
   };
 
-  let transformTableColumns: GridColDef[] = [
-    {
-      field: "input",
-      valueGetter: (params) => mapper(params.row[0]),
-      width: 100,
-    },
-    {
-      field: "output",
-      valueGetter: (params) => mapper(params.row[1]),
-      width: 150,
-    },
-    {
-      field: "This Letter's Representation",
-      valueGetter: (params) => mapper(params.row[3]),
-      width: 200,
-    },
-    {
-      field: "Output's Representation",
-      valueGetter: (params) => mapper(params.row[4]),
-      width: 200,
-    },
-  ];
+  const transformLogTable =
+    (<TableContainer component={Paper} style={{ width: "auto" }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>ルール番号</TableCell>
+            <TableCell>ルール(タグシステム)</TableCell>
+            <TableCell>入力文字表現 (TM)</TableCell>
+            <TableCell>出力表現 (TM)</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {input.getTransFormLogOf(0)?.transformTable.map((row, idx) => (
+            <TableRow key={idx}>
+              <TableCell>{mapper(row.N)}</TableCell>
+              <TableCell>{mapper(row.letter) + " ⇒ " + mapper(row.output)}</TableCell>
+              <TableCell>{mapper(row.charRepresent)}</TableCell>
+              <TableCell>{mapper(row.outRepresent)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>);
 
   return (
-    <>
+    <Stack direction="column" spacing={2} alignItems="flex-start">
       {tagSystemToJSX(
-        input.getTuple(0),
-        input.getConfiguration(0),
+        input.getTuple(0)!,
+        input.getConfiguration(0)!,
         undefined,
         Object.assign(skipButtonArgs, { system: 0 })
       )}
-      <Grid container>
-        <Grid item>
-          <ArrowUpward />
-        </Grid>
-        {(function () {
-          let table = input.getTransFormLogTable(0);
-          if (table !== null) {
-            return (
-              <Grid item>
-                <div style={{ height: 400, width: 700 }}>
-                  <DataGrid
-                    rows={table}
-                    columns={transformTableColumns}
-                    getRowId={(elm) => {
-                      return table.findIndex((e) => e === elm);
-                    }}
-                  ></DataGrid>
-                </div>
-              </Grid>
-            );
-          } else {
-            return <></>;
-          }
-        })()}
-      </Grid>
+      <ArrowUpward />
+      {(function () {
+        let table = input.getTransFormLogOf(0)?.transformTable!;
+        if (table !== null) {
+          return (
+            transformLogTable
+          );
+        } else {
+          return <></>;
+        }
+      })()}
       {turingMachineToJSX(
-        input.getTuple(1),
-        input.getConfiguration(1),
+        input.getTuple(1)!,
+        input.getConfiguration(1)!,
         proceedButtonArgs
       )}
-    </>
+    </Stack>
   );
 }
 
@@ -355,6 +346,7 @@ function tagSystemCreateJSX(
           setError("");
         } catch (e) {
           setError((e as Error).message);
+          throw e;
         }
       })}
     </Card>

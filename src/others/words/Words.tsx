@@ -1,3 +1,5 @@
+import { JSX } from "react";
+
 export type FirstChar = string;
 export type WordItem = { name: string; howread: string; describe: JSX.Element };
 
@@ -409,7 +411,7 @@ export function Words() {
     if (!ret.has(firstChar)) {
       ret.set(firstChar, new Set());
     }
-    ret.get(firstChar).add(word);
+    ret.get(firstChar)!.add(word);
   });
 
   return ret;

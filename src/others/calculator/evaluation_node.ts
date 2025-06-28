@@ -1,4 +1,4 @@
-import bnfToken from "../bnf/token";
+import { type bnfToken } from "../bnf/token";
 import two_op_node from "./two_op_node";
 
 export function createNode(token: bnfToken): evaluation_node {
@@ -44,31 +44,36 @@ class nop_node implements evaluation_node {
 class string_constants_node implements evaluation_node {
   constants: number;
 
+  private constructor() {
+    this.constants = NaN;
+  }
+
   calc() {
     return this.constants;
   }
 
+  static constants: { [key: string]: number } = {
+    PI: Math.PI,
+    E: Math.E,
+  };
+
   static create(token: bnfToken) {
     var node = new string_constants_node();
-
-    switch (token.value) {
-      case "PI":
-        node.constants = Math.PI;
-        break;
-      case "E":
-        node.constants = Math.E;
-        break;
-      default:
-        node.constants = NaN;
-        break;
+    if (token.value in string_constants_node.constants) {
+      node.constants = string_constants_node.constants[token.value];
+    } else {
+      node.constants = NaN; // Unknown constant
     }
-
     return node;
   }
 }
 
 class number_node implements evaluation_node {
   num: number;
+
+  private constructor() {
+    this.num = NaN;
+  }
 
   calc() {
     return this.num;
@@ -86,6 +91,11 @@ class number_node implements evaluation_node {
 class signed_constants_node implements evaluation_node {
   op: string;
   unsigned_constants: evaluation_node;
+
+  private constructor() {
+    this.op = "+";
+    this.unsigned_constants = new nop_node();
+  }
 
   calc() {
     const constantsResult = this.unsigned_constants.calc();
@@ -118,6 +128,11 @@ class signed_constants_node implements evaluation_node {
 class one_op_node implements evaluation_node {
   op: string;
   term: evaluation_node;
+
+  private constructor() {
+    this.op = "+";
+    this.term = new nop_node();
+  }
 
   calc() {
     const termResult = this.term.calc();

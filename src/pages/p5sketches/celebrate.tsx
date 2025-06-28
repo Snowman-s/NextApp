@@ -1,14 +1,13 @@
 import {
-  Grid,
-  Input,
-  Slider,
-  Switch,
   TextField,
+  Slider,
+  Stack,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import Head from "next/head";
 import { useState } from "react";
 import { CanvasOperationPanel } from "src/components/CanvasOperationPanel";
+import CustomBar from "src/components/CustomBar";
 import P5Canvas from "src/components/P5Canvas";
 import celebrate from "src/others/sketches/celebrate/celebrate";
 
@@ -29,6 +28,7 @@ export default function Home() {
           href={process.env.NEXT_PUBLIC_ASSET_PREFIX + "/favicon.ico"}
         />
       </Head>
+      <CustomBar />
       <P5Canvas
         sketch={celebrate}
         restartRequire={restart}
@@ -52,34 +52,33 @@ export default function Home() {
           }}
           slideOutOnRestart={true}
         >
-          <Grid container direction="column">
-            <Grid item>
-              <Grid container direction="row" spacing={2}>
-                <Grid item xs>
-                  <Typography gutterBottom>祝いたいこと</Typography>
-                  <Input
-                    onChange={(event) => {
-                      setCelebrateString(event.target.value);
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Grid container direction="row" spacing={2}>
-                <Grid item xs>
-                  <Typography gutterBottom>ハピネス度 (負荷注意！)</Typography>
-                  <Slider
-                    max={100}
-                    defaultValue={50}
-                    onChange={(event: object, value: number) => {
-                      setHappiness(value);
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+          <Stack direction="column" spacing={2}>
+            <Stack direction="row" spacing={2}>
+              <Stack flex={1}>
+                <Typography gutterBottom>祝いたいこと</Typography>
+                <TextField
+                  value={celebrateString}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setCelebrateString(event.target.value);
+                  }}
+                  variant="standard"
+                  fullWidth
+                />
+              </Stack>
+            </Stack>
+            <Stack direction="row" spacing={2}>
+              <Stack flex={1}>
+                <Typography gutterBottom>ハピネス度 (負荷注意！)</Typography>
+                <Slider
+                  max={100}
+                  value={happiness}
+                  onChange={(_event: Event, value: number | number[]) => {
+                    if (typeof value === "number") setHappiness(value);
+                  }}
+                />
+              </Stack>
+            </Stack>
+          </Stack>
         </CanvasOperationPanel>
       </P5Canvas>
     </div>

@@ -1,5 +1,5 @@
-export default class bnfToken{
-    value : string;
+export type bnfToken = {
+    value: string;
     name: string;
-    tokens : bnfToken[];
+    tokens: bnfToken[];
 }

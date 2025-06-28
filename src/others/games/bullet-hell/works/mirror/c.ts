@@ -1,4 +1,4 @@
-import { BulletP5 } from "../../BulletP5";
+import { Bullet, BulletP5 } from "../../BulletP5";
 import setup from "../../setup";
 
 export default function (p: BulletP5) {
@@ -6,7 +6,7 @@ export default function (p: BulletP5) {
 
   p.shoot = () => {
     p.freq(5 * 60, () => {
-      let bullets = []
+      let bullets: Bullet[] = []
       let n = (15 - p.remainSeconds()) / 15 * 16 + 8
       for (let i = 0; i < n; i++) {
         let I = i / n * p.TAU

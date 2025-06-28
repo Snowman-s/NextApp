@@ -33,11 +33,11 @@ export type Laser = {
 
 export type BulletKind = Bullet | Laser;
 
-export class BulletP5Props {
+export type BulletP5Props = {
   code: (p5: BulletP5) => void;
 }
 
-export class BulletP5 extends p5 {
+export class BulletP5MaybeUninitilized extends p5 {
   shoot?: () => void;
   bullets?: Bullet[];
   lasers?: Laser[];
@@ -99,3 +99,5 @@ export class BulletP5 extends p5 {
     }
   ) => void;
 }
+
+export type BulletP5 = Required<InstanceType<typeof BulletP5MaybeUninitilized>>;

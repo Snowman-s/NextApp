@@ -27,7 +27,7 @@ export default function getWorksList() {
     work: (p: BulletP5) => void,
     name?: string
   ) {
-    insertingTab.data.push({ work, name });
+    insertingTab!.data.push({ work, name: name! });
   };
 
   newTab("基本セット");

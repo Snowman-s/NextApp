@@ -13,7 +13,7 @@ export default class WhitespaceExecutor {
     };
     const popStack = () => {
       if (stack.length == 0) throw new Error("Attempt to pop from empty stack");
-      return stack.pop();
+      return stack.pop()!;
     };
     const getStackElm = (index: number) => {
       if (stack.length <= index)
@@ -36,14 +36,14 @@ export default class WhitespaceExecutor {
     const writeHeap = (heapPtr: number, data: number) => {
       return heap.set(heapPtr, data);
     };
-    let returnAddress = [];
+    let returnAddress: number[] = [];
     const pushReturnAddress = (commandIndex: number) => {
       returnAddress.push(commandIndex);
     };
     const popReturnAddress = () => {
       if (returnAddress.length == 0)
         throw new Error("Attempt to end a subroutine in non-subrotine");
-      return returnAddress.pop();
+      return returnAddress.pop()!;
     };
     try {
       while (commands.length > cmdPtr) {
@@ -152,7 +152,7 @@ export default class WhitespaceExecutor {
               const targetLabel = cmd.param;
               const tmp = labels.find(
                 (label) => label.label == targetLabel
-              ).commandIndex;
+              )!.commandIndex;
               if (tmp == undefined)
                 throw new Error(`Cannot find label ${targetLabel}`);
               cmdPtr = tmp;
@@ -163,7 +163,7 @@ export default class WhitespaceExecutor {
               const targetLabel = cmd.param;
               const tmp = labels.find(
                 (label) => label.label == targetLabel
-              ).commandIndex;
+              )!.commandIndex;
               if (tmp == undefined)
                 throw new Error(`Cannot find label ${targetLabel}`);
               cmdPtr = tmp;
@@ -176,7 +176,7 @@ export default class WhitespaceExecutor {
                 const targetLabel = cmd.param;
                 const tmp = labels.find(
                   (label) => label.label == targetLabel
-                ).commandIndex;
+                )!.commandIndex;
                 if (tmp == undefined)
                   throw new Error(`Cannot find label ${targetLabel}`);
                 cmdPtr = tmp;
@@ -192,7 +192,7 @@ export default class WhitespaceExecutor {
                 const targetLabel = cmd.param;
                 const tmp = labels.find(
                   (label) => label.label == targetLabel
-                ).commandIndex;
+                )!.commandIndex;
                 if (tmp == undefined)
                   throw new Error(`Cannot find label ${targetLabel}`);
                 cmdPtr = tmp;

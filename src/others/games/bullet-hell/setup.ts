@@ -474,13 +474,15 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
     }
   };
 
-  let registeredRoutines: {
-    bullets: BulletKind[];
+  type RegisteredRoutine<T extends BulletKind> = {
+    bullets: T[];
     spaceFrame: number;
     countStartframe: number;
     onlyOnce: boolean;
-    func: (b: BulletKind) => void;
-  }[] = [];
+    func: (b: T) => void;
+  };
+
+  let registeredRoutines: RegisteredRoutine<any>[] = [];
 
   p.registerRoutine = <T extends BulletKind>(
     bullets: T[],
@@ -501,7 +503,7 @@ export default function setup(p: BulletP5, limitSeconds = 10) {
   };
 
   function processRegisteredRoutine() {
-    const willBeRemoved = [];
+    const willBeRemoved: RegisteredRoutine<any>[] = [];
 
     registeredRoutines
       .filter((info) => p.frameCount - info.countStartframe > info.spaceFrame)

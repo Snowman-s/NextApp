@@ -1,5 +1,6 @@
 import Head from "next/head";
-import { Button, Link } from "@material-ui/core";
+import { Button, Link } from "@mui/material";
+import CustomBar from "src/components/CustomBar";
 
 export default function Home() {
   const helpArray: {
@@ -13,125 +14,125 @@ export default function Home() {
       param?: string
     ][];
   }[] = [
-    {
-      name: "Stack",
-      IMP: ["WS"],
-      discription:
-        "スタックを操作するコマンド群です。ここでは、スタックの要素は最も後に積まれた要素から順番に番号付けされているものとして定義します。",
-      commands: [
-        ["Push", ["WS"], "<数値>をスタックに積みます。", "<数値>"],
-        ["Dup", ["LF", "WS"], "スタックの1番目の要素を複製します。"],
-        [
-          "Copy",
-          ["Tab", "WS"],
-          "スタックの、<数値>番目の要素を複製しスタックに積みます。",
-          "<数値>",
+      {
+        name: "Stack",
+        IMP: ["WS"],
+        discription:
+          "スタックを操作するコマンド群です。ここでは、スタックの要素は最も後に積まれた要素から順番に番号付けされているものとして定義します。",
+        commands: [
+          ["Push", ["WS"], "<数値>をスタックに積みます。", "<数値>"],
+          ["Dup", ["LF", "WS"], "スタックの1番目の要素を複製します。"],
+          [
+            "Copy",
+            ["Tab", "WS"],
+            "スタックの、<数値>番目の要素を複製しスタックに積みます。",
+            "<数値>",
+          ],
+          [
+            "Swap",
+            ["LF", "Tab"],
+            "スタックの1番目の要素と2番目の要素を入れ替えます。",
+          ],
+          ["Discard", ["LF", "LF"], "スタックの1番目の要素を捨てます。"],
+          [
+            "Slide",
+            ["Tab", "LF"],
+            "スタックの、<数値>番目の要素を捨てます。",
+            "<数値>",
+          ],
         ],
-        [
-          "Swap",
-          ["LF", "Tab"],
-          "スタックの1番目の要素と2番目の要素を入れ替えます。",
+      },
+      {
+        name: "Arithmetic",
+        IMP: ["Tab", "WS"],
+        discription:
+          "数値の計算をするコマンド群です。スタックの2番目に積んだ要素が演算子の左に、1番目に積んだ要素が演算子の右にあるものとして計算します。例えば、[a, b]の順に数値をスタックに積んだ後、Subtractコマンドを実行するとスタックに a - b の値が積まれます。",
+        commands: [
+          ["Add", ["WS", "WS"], "加算"],
+          ["Subtract", ["WS", "Tab"], "減算"],
+          ["Multiply", ["Tab", "LF"], "乗算"],
+          ["Divide", ["Tab", "WS"], "整数での除算"],
+          ["Modulo", ["Tab", "Tab"], "剰余"],
+          [
+            "KaladeshArithmetic",
+            ["LF"],
+            "コンピューターが耐えきれない位に本当にすごい演算",
+          ],
         ],
-        ["Discard", ["LF", "LF"], "スタックの1番目の要素を捨てます。"],
-        [
-          "Slide",
-          ["Tab", "LF"],
-          "スタックの、<数値>番目の要素を捨てます。",
-          "<数値>",
+      },
+      {
+        name: "Heap",
+        IMP: ["Tab", "Tab"],
+        discription:
+          "ヒープを操作するためのコマンド群です。Storeコマンドを使用するためには、[ヒープのキーとなる数値、ヒープに積みたい値] の順に数値をスタックに積み、Storeコマンドを呼び出します。Retrieveコマンドを使用するためには、ヒープのキーとなる数値をスタックに積み、Retrieveコマンドを呼び出します。",
+        commands: [
+          ["Store", ["WS"], "指定したデータをヒープの指定した位置に格納します。"],
+          [
+            "Retrieve",
+            ["Tab"],
+            "ヒープの指定した位置から数値を読み込みスタックに積みます。",
+          ],
         ],
-      ],
-    },
-    {
-      name: "Arithmetic",
-      IMP: ["Tab", "WS"],
-      discription:
-        "数値の計算をするコマンド群です。スタックの2番目に積んだ要素が演算子の左に、1番目に積んだ要素が演算子の右にあるものとして計算します。例えば、[a, b]の順に数値をスタックに積んだ後、Subtractコマンドを実行するとスタックに a - b の値が積まれます。",
-      commands: [
-        ["Add", ["WS", "WS"], "加算"],
-        ["Subtract", ["WS", "Tab"], "減算"],
-        ["Multiply", ["Tab", "LF"], "乗算"],
-        ["Divide", ["Tab", "WS"], "整数での除算"],
-        ["Modulo", ["Tab", "Tab"], "剰余"],
-        [
-          "KaladeshArithmetic",
-          ["LF"],
-          "コンピューターが耐えきれない位に本当にすごい演算",
+      },
+      {
+        name: "Flow Control",
+        IMP: ["LF"],
+        discription:
+          "制御フローに関するコマンド群です。Labelコマンドのみコンパイル時に処理されます。(Labelコマンドより先にCallやJumpコマンドを使用することができます。)",
+        commands: [
+          [
+            "Label",
+            ["WS", "WS"],
+            "この位置を <ラベル>としてマークします。",
+            "<ラベル>",
+          ],
+          [
+            "Call",
+            ["WS", "Tab"],
+            "<ラベル> をサブルーチンとして呼び出します。(Return と組み合わせて使用します。)",
+            "<ラベル>",
+          ],
+          ["Jump", ["WS", "LF"], "<ラベル> の位置に実行を移します。"],
+          [
+            "JumpIfZero",
+            ["Tab", "WS"],
+            "スタックから要素を1つ取り出し、それが0であるなら<ラベル> の位置に実行を移します。",
+            "<ラベル>",
+          ],
+          [
+            "JumpIfNegative",
+            ["Tab", "Tab"],
+            "スタックから要素を1つ取り出し、それが負の値であるなら<ラベル> の位置に実行を移します。",
+            "<ラベル>",
+          ],
+          [
+            "Return",
+            ["Tab", "LF"],
+            "現在のサブルーチンを終了し、呼び出し元に制御を戻します。(Call と組み合わせて使用します。)",
+          ],
+          ["End", ["LF", "LF"], "プログラムの実行を即座に終了します。"],
         ],
-      ],
-    },
-    {
-      name: "Heap",
-      IMP: ["Tab", "Tab"],
-      discription:
-        "ヒープを操作するためのコマンド群です。Storeコマンドを使用するためには、[ヒープのキーとなる数値、ヒープに積みたい値] の順に数値をスタックに積み、Storeコマンドを呼び出します。Retrieveコマンドを使用するためには、ヒープのキーとなる数値をスタックに積み、Retrieveコマンドを呼び出します。",
-      commands: [
-        ["Store", ["WS"], "指定したデータをヒープの指定した位置に格納します。"],
-        [
-          "Retrieve",
-          ["Tab"],
-          "ヒープの指定した位置から数値を読み込みスタックに積みます。",
+      },
+      {
+        name: "IO",
+        IMP: ["Tab", "LF"],
+        discription: "入出力に関するコマンド群です。",
+        commands: [
+          [
+            "OutputCharacter",
+            ["WS", "WS"],
+            "スタックから要素を1つ文字コードとして取り出し、その文字を表示します。",
+          ],
+          [
+            "OutputNumber",
+            ["WS", "Tab"],
+            "スタックから要素を1つ取り出し、それを数値として表示します。",
+          ],
+          ["InputCharacter", ["Tab", "WS"], "未実装。"],
+          ["InputNumber", ["Tab", "Tab"], "未実装。"],
         ],
-      ],
-    },
-    {
-      name: "Flow Control",
-      IMP: ["LF"],
-      discription:
-        "制御フローに関するコマンド群です。Labelコマンドのみコンパイル時に処理されます。(Labelコマンドより先にCallやJumpコマンドを使用することができます。)",
-      commands: [
-        [
-          "Label",
-          ["WS", "WS"],
-          "この位置を <ラベル>としてマークします。",
-          "<ラベル>",
-        ],
-        [
-          "Call",
-          ["WS", "Tab"],
-          "<ラベル> をサブルーチンとして呼び出します。(Return と組み合わせて使用します。)",
-          "<ラベル>",
-        ],
-        ["Jump", ["WS", "LF"], "<ラベル> の位置に実行を移します。"],
-        [
-          "JumpIfZero",
-          ["Tab", "WS"],
-          "スタックから要素を1つ取り出し、それが0であるなら<ラベル> の位置に実行を移します。",
-          "<ラベル>",
-        ],
-        [
-          "JumpIfNegative",
-          ["Tab", "Tab"],
-          "スタックから要素を1つ取り出し、それが負の値であるなら<ラベル> の位置に実行を移します。",
-          "<ラベル>",
-        ],
-        [
-          "Return",
-          ["Tab", "LF"],
-          "現在のサブルーチンを終了し、呼び出し元に制御を戻します。(Call と組み合わせて使用します。)",
-        ],
-        ["End", ["LF", "LF"], "プログラムの実行を即座に終了します。"],
-      ],
-    },
-    {
-      name: "IO",
-      IMP: ["Tab", "LF"],
-      discription: "入出力に関するコマンド群です。",
-      commands: [
-        [
-          "OutputCharacter",
-          ["WS", "WS"],
-          "スタックから要素を1つ文字コードとして取り出し、その文字を表示します。",
-        ],
-        [
-          "OutputNumber",
-          ["WS", "Tab"],
-          "スタックから要素を1つ取り出し、それを数値として表示します。",
-        ],
-        ["InputCharacter", ["Tab", "WS"], "未実装。"],
-        ["InputNumber", ["Tab", "Tab"], "未実装。"],
-      ],
-    },
-  ];
+      },
+    ];
 
   const transpile = function (v: "WS" | "Tab" | "LF") {
     switch (v) {
@@ -178,6 +179,7 @@ export default function Home() {
         />
         <style>{css}</style>
       </Head>
+      <CustomBar />
       <div style={{ padding: "10px" }}>
         <h1>Help</h1>
         <p>
@@ -210,6 +212,9 @@ export default function Home() {
         <p>
           Labelコマンドで宣言するラベルはそれぞれ異なる列でなければなりません。また、Labelコマンド以外のコマンドで存在しないラベルを指定した場合にはコンパイルエラーとなります。
         </p>
+        <p>
+          ※<b>アヴィシュカーモード</b>では、「カラデシュ!」の代わりに「アヴィシュカー!」を使用します。
+        </p>
         {helpArray.map((elm, index) => (
           <div key={index}>
             <h2>{`${elm.name} (IMP:${elm.IMP.map(transpile).reduce(
@@ -239,10 +244,6 @@ export default function Home() {
             </table>
           </div>
         ))}
-        <hr />
-        <Link href="..">
-          <Button variant="contained">エディターに戻る</Button>
-        </Link>
       </div>
     </div>
   );

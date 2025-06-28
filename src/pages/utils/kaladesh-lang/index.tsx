@@ -1,31 +1,47 @@
 import Head from "next/head";
-import {
-  Paper,
-  IconButton,
-  Grid,
-  Link,
-  Button,
-  styled,
-} from "@material-ui/core";
 import React from "react";
 
 import Editor from "react-simple-code-editor";
 
-import Prism from "prismjs";
-import PlayCircle from "@mui/icons-material/PlayCircle";
+import { highlight, languages } from 'prismjs';
 import {
   AnalysisResult,
+  Commands,
+  NonErrorResult,
   ParseError,
   SyntaxErrors,
   WhitespaceParser,
 } from "src/others/kaladesh-lang/Parser";
 import WhitespaceExecutor from "src/others/kaladesh-lang/Executor";
+import {
+  Paper,
+  IconButton,
+  Link,
+  Button,
+  Select,
+  MenuItem,
+  Stack,
+  Box
+} from "@mui/material";
+import PlayCircle from "@mui/icons-material/PlayCircle";
+import CustomBar from "src/components/CustomBar";
+
+const langData = {
+  "kaladesh": {
+    tab: "カラデシュ!",
+  },
+  "avishkar": {
+    tab: "アヴィシュカー!",
+  },
+};
+type langKey = keyof typeof langData;
 
 export default function Home() {
   const [code, setCode] = React.useState(
     "カラデシュ!\nすごい!\n本当にすごいんだ!"
   );
 
+  const [langMode, setLangMode] = React.useState<langKey>("kaladesh");
   const [parsed, setParsed] = React.useState<AnalysisResult>();
   const [parsedResultStr, setParsedResultStr] = React.useState<string>();
   const [execResultStr, setExecResultStr] = React.useState<string>();
@@ -42,18 +58,23 @@ export default function Home() {
       }
     `;
 
-  Prism.languages["kaladesh"] = {
+  languages["kaladesh"] = {
     ws: /すごい\!/,
     tab: /カラデシュ\!/,
     lf: /本当にすごいんだ\!/,
   };
+  languages["avishkar"] = {
+    ws: /すごい\!/,
+    tab: /アヴィシュカー\!/,
+    lf: /本当にすごいんだ\!/,
+  }
 
   const onParse = () => {
     let parser = new WhitespaceParser();
     const result = parser.parse(
       code,
       "すごい!",
-      "カラデシュ!",
+      langData[langMode].tab,
       "本当にすごいんだ!",
       true
     );
@@ -61,7 +82,7 @@ export default function Home() {
     setParsed(result);
 
     if (result == undefined) setParsedResultStr("");
-    else setParsedResultStr(parseResultAsString(result));
+    else setParsedResultStr(parseResultAsString(result, langMode));
   };
 
   const onExec = () => {
@@ -76,8 +97,17 @@ export default function Home() {
     setExecResultStr(output);
   };
 
+  const oChangeLangMode = (s: string) => {
+    if (s in langData) {
+      setCode(c => c.replaceAll(langData[langMode].tab, langData[s as langKey].tab));
+      setLangMode(s as langKey);
+      setParsedResultStr(undefined);
+      setExecResultStr(undefined);
+    }
+  }
+
   return (
-    <div>
+    <>
       <Head>
         <title>カラデシュ言語エディター</title>
         <meta
@@ -90,87 +120,129 @@ export default function Home() {
         />
         <style>{highlightCss}</style>
       </Head>
-      <Grid container alignItems="center" spacing={2}>
-        <Grid item>
-          <h1>カラデシュ言語エディター</h1>
-        </Grid>
-        <Grid item>
-          <Link href="./help">
-            <Button variant="contained">Help (内容は保存されません!)</Button>
-          </Link>
-        </Grid>
-      </Grid>
-      <hr />
-      <Grid container>
-        <Grid item>
-          <Paper>
-            <h3>コード</h3>
-            <hr style={{ marginRight: "15px" }} />
-            <Editor
-              value={code}
-              onValueChange={(code) => setCode(code)}
-              highlight={(code) =>
-                Prism.highlight(code, Prism.languages.kaladesh, "kaladesh")
-              }
-              padding={10}
-              style={{
-                fontFamily: '"Fira code", "Fira Mono", monospace',
-                fontSize: 12,
-                fontWeight: "bold",
+      <div style={{ minWidth: "600px", width: "100vw", height: "100vh", display: "flex", flexDirection: "column", boxSizing: "border-box", overflowY: "hidden", overflowX: "hidden" }}>
+        <CustomBar noScroll={true} />
+        <Stack direction="column" spacing={2} flexGrow={1} minHeight={0} height="100%" padding="10px" boxSizing="border-box" >
+          <Stack direction="row" spacing={2} alignItems="center" style={{ padding: 10, boxSizing: "border-box" }}>
+            <h1>カラデシュ言語エディター</h1>
+            <Link href="./help" target="_blank">
+              <Button variant="contained">Help</Button>
+            </Link>
+            <Select
+              value={langMode}
+              onChange={(e) => oChangeLangMode(e.target.value)}
+            >
+              <MenuItem value="kaladesh">カラデシュモード</MenuItem>
+              <MenuItem value="avishkar">アヴィシュカーモード</MenuItem>
+            </Select>
+          </Stack>
+          <hr style={{ margin: 0 }} />
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="space-evenly"
+            alignItems={"stretch"}
+            flex={1}
+            minHeight={0}
+            style={{ height: "100%", boxSizing: "border-box" }}
+          >
+            <Paper sx={{ flex: 5, height: "100%" }} style={{ whiteSpace: "pre", padding: "10px", boxSizing: "border-box", minWidth: 0 }}>
+              <Stack direction={"column"} spacing={2} style={{ width: "100%", height: "100%" }}>
+                <h3>コード</h3>
+                <hr style={{ marginRight: "10px" }} />
+                <div style={{ flexGrow: 1, width: "100%", height: "100%", overflow: "scroll", margin: 0 }}>
+                  <Editor
+                    value={code}
+                    onValueChange={(code) => setCode(code)}
+                    highlight={(code) => {
+                      const highlighted = highlight(
+                        code,
+                        langMode === "avishkar" ? languages.avishkar : languages.kaladesh,
+                        langMode
+                      );
+
+                      return highlighted
+                    }
+                    }
+                    padding={10}
+                    style={{
+                      fontFamily: '"Fira code", "Fira Mono", monospace',
+                      fontSize: 12,
+                      fontWeight: "bold",
+                      border: "1px solid #ddd",
+                      minHeight: "100%",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              </Stack>
+            </Paper>
+            <Box
+              sx={{
+                flex: 1,
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
               }}
-            />
-          </Paper>
-        </Grid>
-        <Grid item>
-          <IconButton onClick={onParse}>
-            <PlayCircle />
-          </IconButton>
-        </Grid>
-        {parsedResultStr == undefined ? (
-          <></>
-        ) : (
-          <>
-            <Grid item>
-              <Paper style={{ whiteSpace: "pre" }}>
+            >
+              <IconButton onClick={onParse}>
+                <PlayCircle />
+              </IconButton>
+            </Box>
+            <Paper sx={{ flex: 3, height: "100%" }} style={{ whiteSpace: "pre", padding: "10px", boxSizing: "border-box", minWidth: 0 }}>
+              <Stack direction={"column"} spacing={2} style={{ width: "100%", height: "100%" }}>
                 <h3>コンパイル結果</h3>
                 <hr style={{ marginRight: "15px" }} />
-                {parsedResultStr}
-              </Paper>
-            </Grid>
-            <Grid item>
+                <div style={{ width: "100%", height: "auto", overflow: "auto", margin: 0, flexGrow: 1 }}>
+                  <pre>{parsedResultStr}</pre>
+                </div>
+              </Stack>
+            </Paper>
+            <Box
+              sx={{
+                flex: 1,
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+            >
               <IconButton onClick={onExec}>
                 <PlayCircle />
               </IconButton>
-            </Grid>
-            {execResultStr == undefined ? (
-              <></>
-            ) : (
-              <>
-                <Grid item>
-                  <Paper style={{ whiteSpace: "pre" }}>
-                    <h3>実行結果</h3>
-                    <hr style={{ marginRight: "15px" }} />
-                    {execResultStr}
-                  </Paper>
-                </Grid>
-              </>
-            )}
-          </>
-        )}
-      </Grid>
-    </div>
+            </Box>
+            <Paper sx={{ flex: 3, height: "100%" }} style={{ whiteSpace: "pre", padding: "10px", boxSizing: "border-box", minWidth: 0 }}>
+              <Stack direction={"column"} spacing={2} style={{ width: "100%", height: "100%" }}>
+                <h3>実行結果</h3>
+                <hr style={{ marginRight: "15px" }} />
+                <div style={{ width: "100%", height: "auto", overflow: "auto", margin: 0, flexGrow: 1 }}>
+                  <pre>{execResultStr}</pre>
+                </div>
+              </Stack>
+            </Paper>
+          </Stack>
+        </Stack>
+      </div>
+    </>
   );
 }
 
 function parseResultAsString(
-  result: AnalysisResult | ParseError[] | SyntaxErrors
+  result: AnalysisResult | ParseError[] | SyntaxErrors,
+  langMode: langKey = "kaladesh"
 ): string {
+  const replaceCommandName = (str: Commands): string => {
+    if (langMode === "avishkar" && str === "KaladeshArithmetic") {
+      return "AvishkarArithmetic";
+    }
+    return str;
+  }
+
   if ("commands" in result) {
     let str = result.commands
       .map((cmd) => {
-        return `  ${cmd.command} ${
-          "param" in cmd ? cmd.param.toString() : ""
-        }\n`;
+        return `  ${replaceCommandName(cmd.command)} ${"param" in cmd ? cmd.param.toString() : ""}\n`;
       })
       .reduce((a, b) => a + b, "");
 
@@ -191,9 +263,8 @@ function parseResultAsString(
             ": " +
             (cmd == undefined
               ? "???\n"
-              : `${cmd.command} ${
-                  "param" in cmd ? cmd.param.toString() : ""
-                }\n`)
+              : `${cmd.command} ${"param" in cmd ? cmd.param.toString() : ""
+              }\n`)
           );
         })
         .reduce((a, b) => a + b, "");

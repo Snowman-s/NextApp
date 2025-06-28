@@ -5,18 +5,18 @@ export type WhitespaceLexicalOutput = {
 type TranscriptedToken = "ws" | "tab" | "lf";
 export type AnalysisCommandResult<C extends Commands> =
   C extends ParamNumberCommand
-    ? {
-        command: C;
-        param: number;
-      }
-    : C extends ParamLabelCommand
-    ? {
-        command: C;
-        param: string;
-      }
-    : {
-        command: C;
-      };
+  ? {
+    command: C;
+    param: number;
+  }
+  : C extends ParamLabelCommand
+  ? {
+    command: C;
+    param: string;
+  }
+  : {
+    command: C;
+  };
 export type AnalysisResult = NonErrorResult | ParseError[] | SyntaxErrors;
 export type NonErrorResult = {
   commands: AnalysisCommandResult<Commands>[];
@@ -57,7 +57,7 @@ const Commands = {
   ReadCharacter: "ReadCharacter",
   ReadNumber: "ReadNumber",
 } as const;
-type Commands = typeof Commands[keyof typeof Commands];
+export type Commands = typeof Commands[keyof typeof Commands];
 const ParamNumberCommand = [
   Commands.Push,
   Commands.Copy,

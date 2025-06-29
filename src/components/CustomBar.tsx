@@ -2,6 +2,7 @@ import { Menu, OutboundOutlined } from '@mui/icons-material';
 import { Drawer, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React, { useState } from 'react';
 import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
 
 const pageNaviData:
   {
@@ -95,9 +96,9 @@ const pageNaviData:
       ]
     }
   ]
-
 export default function CustomBar(props: { noScroll?: boolean, style?: React.CSSProperties }) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const pageNaviList = (
     <List>
@@ -108,7 +109,16 @@ export default function CustomBar(props: { noScroll?: boolean, style?: React.CSS
           </ListItem>
           {category.pages.map((page) => (
             <ListItem key={page.link} disablePadding>
-              <ListItemButton component="a" href={page.link} onClick={() => setOpen(false)}>
+              <ListItemButton
+                onClick={async (e) => {
+                  setOpen(false);
+                  if (page.external) {
+                    window.open(page.link, '_blank', 'noopener,noreferrer');
+                  } else {
+                    await router.push(page.link);
+                  }
+                }}
+              >
                 {page.external ? <OutboundOutlined /> : <></>}
                 <ListItemText primary={page.name} />
               </ListItemButton>

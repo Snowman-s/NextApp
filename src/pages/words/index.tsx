@@ -49,6 +49,18 @@ export default function Home() {
                     <div key={item.name}>
                       <h3>{`${item.name} - ${item.howread}`}</h3>
                       {item.describe}
+                      {item.remarks != null ? (
+                        <div>
+                          <h4>備考：</h4>
+                          {item.remarks.map((remark, index) => (
+                            <div key={index}>
+                              {remark.remark}
+                              <br />
+                              <small>{remark.date}</small>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
                       <hr key={word[1] + "hr"} />
                     </div>
                   ))}

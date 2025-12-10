@@ -1,7 +1,7 @@
 import { JSX } from "react";
 
 export type FirstChar = string;
-export type WordItem = { name: string; howread: string; describe: JSX.Element };
+export type WordItem = { name: string; howread: string; describe: JSX.Element, remarks?: { remark: JSX.Element, date: string }[] };
 
 export function Words() {
   var wordList: WordItem[] = [
@@ -18,6 +18,16 @@ export function Words() {
           この「他人と違うこと」がアイデンティティーである、ということに違いない。
         </>
       ),
+      remarks: [
+        {
+          remark: (
+            <>
+              いや、それは違うのではないか？自分は「他人と違うことをしたい」という気が強いだけで、<br />
+              常に行動原理は物理的スケールから独立した「自分」が望むことをやってきたではないか。
+            </>
+          ), date: "2025年12月10日",
+        },
+      ],
     },
     {
       name: "I wanna ...",
@@ -134,6 +144,17 @@ export function Words() {
           一方で、そのような自分をよく見ることへの防衛反応に負けているのでは、という説もある。
         </>
       ),
+      remarks: [
+        {
+          remark: (
+            <>
+              何者か、なんて他人に立脚している物で、<br />
+              どうせ他人には自分のことなんて分かりやしないのだから。<br />
+              何であろうとも自分を強く持つべきだ。
+            </>
+          ), date: "2025年12月10日",
+        },
+      ],
     },
     {
       name: "視線",
@@ -145,6 +166,15 @@ export function Words() {
           孤独でいることはあまり考えなくなってしまったから、私は他の人間との関わり無しでは生きられないと思う。
         </>
       ),
+      remarks: [
+        {
+          remark: (
+            <>
+              最近ようやく気付いたが、これはもはや自分自身である。
+            </>
+          ), date: "2025年12月10日",
+        },
+      ],
     },
     {
       name: "Java",
@@ -295,6 +325,15 @@ export function Words() {
           「結局他人に認められたいってことだよね？」と言っている人がいたけど、実際その通りだと思った。
         </>
       ),
+      remarks: [
+        {
+          remark: (
+            <>
+              違うだろうな、自分が自分にどう見られたいかを強く意識しているのだろう。
+            </>
+          ), date: "2025年12月10日",
+        },
+      ],
     },
     {
       name: "パソコン",
@@ -363,6 +402,15 @@ export function Words() {
           好きなんだもん。ねぇ。
         </>
       ),
+      remarks: [
+        {
+          remark: (
+            <>
+              最近は他の表現も覚えた。
+            </>
+          ), date: "2025年12月10日",
+        },
+      ]
     },
     {
       name: "遊戯王",
